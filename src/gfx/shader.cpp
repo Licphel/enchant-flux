@@ -7,19 +7,22 @@
 namespace flux
 {
 
-void shader_attrib::layout(shader_attrib_size size, int components, int stride, int offset, bool normalize)
+void shader_attrib::layout(shader_vertex_data_type size, int components, int stride, int offset, bool normalize)
 {
     glEnableVertexAttribArray(__attrib_id);
     GLenum type;
     switch (size)
     {
-    case FX_SHADER_1:
+    case FX_VDAT_BYTE:
         type = GL_UNSIGNED_BYTE;
         break;
-    case FX_SHADER_2:
+    case FX_VDAT_INT:
         type = GL_UNSIGNED_SHORT;
         break;
-    case FX_SHADER_4:
+    case FX_VDAT_HALF_FLOAT:
+        type = GL_HALF_FLOAT;
+        break;
+    case FX_VDAT_FLOAT:
         type = GL_FLOAT;
         break;
     default:
@@ -181,13 +184,13 @@ shared<shader_program> make_program(builtin_shader_type type)
     if (__builtin_colored == nullptr || __builtin_textured == nullptr)
     {
         __builtin_colored = make_program(__dvert_colored, __dfrag_colored, [](shared<shader_program> program) {
-            program->get_attrib(0).layout(FX_SHADER_4, 2, 24, 0);
-            program->get_attrib(1).layout(FX_SHADER_4, 4, 24, 8);
+            program->get_attrib(0).layout(FX_VDAT_FLOAT, 2, 16, 0);
+            program->get_attrib(1).layout(FX_VDAT_HALF_FLOAT, 4, 16, 8);
         });
         __builtin_textured = make_program(__dvert_textured, __dfrag_textured, [](shared<shader_program> program) {
-            program->get_attrib(0).layout(FX_SHADER_4, 2, 32, 0);
-            program->get_attrib(1).layout(FX_SHADER_4, 4, 32, 8);
-            program->get_attrib(2).layout(FX_SHADER_4, 2, 32, 24);
+            program->get_attrib(0).layout(FX_VDAT_FLOAT, 2, 24, 0);
+            program->get_attrib(1).layout(FX_VDAT_HALF_FLOAT, 4, 24, 8);
+            program->get_attrib(2).layout(FX_VDAT_FLOAT, 2, 24, 16);
         });
     }
     switch (type)

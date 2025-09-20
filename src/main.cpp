@@ -4,10 +4,12 @@
 #include <kernel/common.h>
 #include <audio/aud.h>
 #include <gfx/atlas.h>
+#include <gfx/mesh.h>
 
 using namespace flux;
 
-shared<texture> tex;
+shared<texture> tex, tex1;
+unique<mesh> msh;
 
 int main()
 {
@@ -20,9 +22,11 @@ int main()
     atlas->begin();
     atlas->accept(img);
     tex = atlas->accept(img1);
+    tex1 = atlas->accept(img);
     atlas->end();
     tk_icon(img);
     tk_end_make_handle();
+    msh = make_mesh();
 
     tk_hook_event_tick([](double delta) {
         tk_title(fmt::format("Enchant: Flux CE t:{} f:{}", tk_real_tps(), tk_real_fps()));
@@ -32,8 +36,24 @@ int main()
     tk_hook_event_render([](brush *brush, double partial) {
         brush->clear({1, 0, 0, 1});
         brush->use(FX_NORMAL_BLEND);
-        brush->use(get_world_camera({tk_ticks() / 25.0, 0}, 100 + tk_ticks() / 3.0));
-        brush->draw_texture(tex, {0, 0, 93, 31});
+        brush->use(get_world_camera({tk_ticks() / 50.0, 0}, 100 + tk_ticks() * 2.5));
+        brush->draw_oval_outline({-100, -100, 50, 50});
+
+        if (msh->buffer->vertex_count == 0)
+        {
+            auto brush_1 = msh->begin();
+            for (int i = 0; i < 2048; i++)
+            {
+                brush_1->draw_texture(tex, {i / 2.0, 0, 93, 31});
+                brush_1->draw_texture(tex1, {i / 2.0, 40, 93, 31});
+            }
+            msh->end();
+        }
+        else
+        {
+            msh->draw(brush);
+        }
+
         if (tk_key_press(KEY_F))
             prtlog(INFO, "HI!");
     });

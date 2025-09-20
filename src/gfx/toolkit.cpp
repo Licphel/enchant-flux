@@ -145,9 +145,9 @@ void tk_make_handle()
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback([](GLenum src, GLenum type, GLuint id, GLenum sev, GLsizei len, const GLchar *txt,
-                              const void *usr) { printf("GL: %s\n", txt); },
-                           nullptr);
+    glDebugMessageCallback(
+        [](GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar *txt, const void *) { printf("GL: %s\n", txt); },
+        nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 }
 
@@ -224,7 +224,7 @@ vec2 tk_get_pos()
 void tk_lifecycle(int fps, int tps, bool vsync)
 {
     // init global gfx usage
-    global_buffer = make_buffer(1024 * 1024);
+    global_buffer = make_buffer();
     global_brush = make_brush(global_buffer);
     // end region
     glfwSwapInterval(vsync ? 1 : 0);

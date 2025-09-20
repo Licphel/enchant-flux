@@ -8,11 +8,12 @@
 namespace flux
 {
 
-enum shader_attrib_size
+enum shader_vertex_data_type
 {
-    FX_SHADER_1,
-    FX_SHADER_2,
-    FX_SHADER_4
+    FX_VDAT_BYTE,
+    FX_VDAT_INT,
+    FX_VDAT_HALF_FLOAT,
+    FX_VDAT_FLOAT
 };
 
 struct shader_attrib
@@ -22,7 +23,7 @@ struct shader_attrib
     {
     }
 
-    void layout(shader_attrib_size size, int components, int stride, int offset, bool normalize = false);
+    void layout(shader_vertex_data_type size, int components, int stride, int offset, bool normalize = false);
 };
 
 struct shader_uniform
