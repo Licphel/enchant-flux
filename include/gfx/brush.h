@@ -42,6 +42,9 @@ struct graph_state
     void (*callback_buffer_append)(unique<complex_buffer> buf) = nullptr;
 };
 
+// pre-declare
+struct mesh;
+
 struct brush
 {
     color vertex_color[4]{};
@@ -51,8 +54,11 @@ struct brush
     shared<shader_program> __default_colored;
     shared<shader_program> __default_textured;
     weak<complex_buffer> buffer;
+    mesh* __mesh_root;
     bool __is_in_mesh = false;
-
+    bool __clear_when_flush = true;
+    bool __program_changed = true;
+ 
     brush();
 
     shared<complex_buffer> lock_buffer();

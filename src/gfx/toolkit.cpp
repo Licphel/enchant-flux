@@ -11,6 +11,7 @@
 #include <kernel/common.h>
 #include <thread>
 #include <vector>
+#include <gfx/mesh.h>
 
 namespace flux
 {
@@ -39,8 +40,7 @@ int rfps, rtps;
 bool __cur_in_tick;
 
 // global gfx usage
-shared<complex_buffer> direct_buffer = nullptr;
-unique<brush> direct_brush = nullptr;
+shared<mesh> direct_mesh = nullptr;
 
 double tk_nanos()
 {
@@ -224,8 +224,8 @@ vec2 tk_get_pos()
 void tk_lifecycle(int fps, int tps, bool vsync)
 {
     // init global gfx usage
-    direct_buffer = make_buffer();
-    direct_brush = make_brush(direct_buffer);
+    direct_mesh = make_mesh();
+    direct_mesh->__is_direct = true;
     // end region
     glfwSwapInterval(vsync ? 1 : 0);
 
@@ -268,13 +268,12 @@ void tk_lifecycle(int fps, int tps, bool vsync)
             lf_partial = 1.0 - (logic_debt / DT_LOGIC_NS);
             lf_partial = lf_partial < 0.0 ? 0.0 : lf_partial > 1.0 ? 1.0 : lf_partial;
 
+            auto brush = direct_mesh->brush_binded.get();
             for (auto e : event_render)
-                // Here passes a raw ptr.
-                e(direct_brush.get(), lf_partial);
+                e(brush, lf_partial);
             lf_render_ticks++;
-            direct_brush->flush();
+            brush->flush();
             tk_swap_buffers();
-            direct_buffer->clear();
 
             render_frm++;
             last_render += DT_RENDER_NS;

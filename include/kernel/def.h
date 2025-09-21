@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#define FLUX_VERSION "v1.0.2"
+#define FLUX_VERSION "v1.0.3"
 
 namespace flux
 {

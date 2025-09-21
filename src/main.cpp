@@ -36,16 +36,16 @@ int main()
     tk_hook_event_render([](brush *brush, double partial) {
         brush->clear({1, 0, 0, 1});
         brush->use(FX_NORMAL_BLEND);
-        brush->use(get_world_camera({tk_ticks() / 50.0, 0}, 100 + tk_ticks() * 2.5));
-        brush->draw_oval_outline({-100, -100, 50, 50});
+        brush->use(get_world_camera({tk_ticks() * 1.5, tk_ticks() * 1.5}, 100 + tk_ticks() * 10));
+        brush->draw_texture(tex, {-100, -100, 50, 50});
 
         if (msh->buffer->vertex_count == 0)
         {
             auto brush_1 = msh->retry();
-            for (int i = 0; i < 512; i++)
+            for (int i = 0; i < 100; i++)
             {
-                brush_1->draw_texture(tex, {i / 2.0, 0, 93, 31});
-                brush_1->draw_texture(tex1, {i / 2.0, 40, 93, 31});
+                for (int j = 0; j < 100; j++)
+                    brush_1->draw_texture(tex, {i * 93, j * 31, 93, 31});
             }
             msh->record();
         }

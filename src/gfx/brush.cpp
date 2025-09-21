@@ -4,6 +4,7 @@
 #include <gl/gl.h>
 #include <memory>
 #include <kernel/common.h>
+#include <gfx/mesh.h>
 
 namespace flux
 {
@@ -134,6 +135,8 @@ transform brush::get_combined_transform()
 void brush::flush()
 {
     auto buf = lock_buffer();
+    auto msh = __mesh_root;
+
     if (buf->vertex_buf.size() <= 0)
         return;
 
@@ -155,22 +158,19 @@ void brush::flush()
             break;
         }
 
-    glBindVertexArray(buf->__vao);
-    glBindBuffer(GL_ARRAY_BUFFER, buf->__vbo);
+    glBindVertexArray(msh->__vao);
+    glBindBuffer(GL_ARRAY_BUFFER, msh->__vbo);
     if (buf->dirty)
     {
         if (buf->__cap_changed)
             glBufferData(GL_ARRAY_BUFFER, buf->vertex_buf.capacity(), buf->vertex_buf.data(), GL_DYNAMIC_DRAW);
         else
             glBufferSubData(GL_ARRAY_BUFFER, 0, buf->vertex_buf.size(), buf->vertex_buf.data());
-        buf->dirty = false;
     }
 
     glUseProgram(program_used->__program_id);
     if (program_used->callback_setup != nullptr)
-    {
         program_used->callback_setup(program_used);
-    }
 
     if (m_state.callback_uniform != nullptr)
         m_state.callback_uniform(program_used);
@@ -182,11 +182,14 @@ void brush::flush()
 
     if (m_state.mode == FX_TEXTURED_QUAD || m_state.mode == FX_COLORED_QUAD)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf->__ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, msh->__ebo);
         if (buf->__cap_changed)
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, buf->index_buf.capacity(), buf->index_buf.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, buf->index_buf.capacity() * 4, buf->index_buf.data(), GL_STATIC_DRAW);
+        else
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, buf->index_buf.size() * 4, buf->index_buf.data());
     }
     buf->__cap_changed = false;
+    buf->dirty = false;
 
     switch (m_state.mode)
     {
@@ -207,13 +210,16 @@ void brush::flush()
         glDrawArrays(GL_TRIANGLES, 0, buf->vertex_count);
         break;
     default:
-        prtlog_throw(FATAL, "Unknown graphics mode.");
+        prtlog_throw(FATAL, "uknown graphics mode.");
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glUseProgram(0);
+
+    if (__clear_when_flush)
+        buf->clear();
 }
 
 void brush::assert_mode(graph_mode mode)

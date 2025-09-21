@@ -15,7 +15,11 @@ struct mesh
     shared<complex_buffer> buffer;
     shared<brush> brush_binded;
 
+    /* unstable */ unsigned int __vao, __vbo, __ebo;
+    /* unstable */ bool __is_direct;
+
     mesh();
+    ~mesh();
     brush *retry();
     void record();
     void draw(brush *gbrush);

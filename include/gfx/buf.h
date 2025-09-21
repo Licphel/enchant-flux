@@ -29,10 +29,6 @@ struct complex_buffer
     bool dirty;
     bool __cap_changed;
 
-    /* unstable */ unsigned int __vao, __vbo, __ebo;
-
-    ~complex_buffer();
-
     template <typename T> complex_buffer &operator<<(const T &t)
     {
         std::size_t s = sizeof(t);
