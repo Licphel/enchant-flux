@@ -89,6 +89,13 @@ shader_uniform shader_program::get_uniform(const std::string &name)
     return {glGetUniformLocation(__program_id, name.c_str())};
 }
 
+shader_uniform shader_program::cache_uniform(const std::string &name)
+{
+    auto uni = get_uniform(name);
+    cached_uniforms.push_back(uni);
+    return uni;
+}
+
 static int __build_shader_part(std::string source, GLenum type)
 {
     int id = glCreateShader(type);
@@ -186,11 +193,20 @@ shared<shader_program> make_program(builtin_shader_type type)
         __builtin_colored = make_program(__dvert_colored, __dfrag_colored, [](shared<shader_program> program) {
             program->get_attrib(0).layout(FX_VDAT_FLOAT, 2, 16, 0);
             program->get_attrib(1).layout(FX_VDAT_HALF_FLOAT, 4, 16, 8);
+
+            if (program->cached_uniforms.size() > 0)
+                return;
+            program->cache_uniform("u_proj"); // 0
         });
         __builtin_textured = make_program(__dvert_textured, __dfrag_textured, [](shared<shader_program> program) {
             program->get_attrib(0).layout(FX_VDAT_FLOAT, 2, 24, 0);
             program->get_attrib(1).layout(FX_VDAT_HALF_FLOAT, 4, 24, 8);
             program->get_attrib(2).layout(FX_VDAT_FLOAT, 2, 24, 16);
+
+            if (program->cached_uniforms.size() > 0)
+                return;
+            program->cache_uniform("u_proj");                    // 0
+            program->cache_uniform("u_tex").set_texture_unit(1); // 1
         });
     }
     switch (type)

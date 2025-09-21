@@ -33,6 +33,15 @@ enum blend_mode
     FX_ADDITIVE_BLEND
 };
 
+struct graph_state
+{
+    graph_mode mode = FX_TEXTURED_QUAD;
+    shared<texture> texture = nullptr;
+    shared<shader_program> program = nullptr;
+    void (*callback_uniform)(shared<shader_program> program) = nullptr;
+    void (*callback_buffer_append)(unique<complex_buffer> buf) = nullptr;
+};
+
 struct brush
 {
     color vertex_color[4]{};
@@ -63,6 +72,7 @@ struct brush
     void assert_texture(shared<texture> tex);
     void use(const camera &cam);
     void use(shared<shader_program> program);
+    void use(const graph_state& sts);
 
     void draw_texture(shared<texture> tex, const quad &dst, const quad &src, brush_flag flag = FX_BFLAG_NO);
     void draw_texture(shared<texture> tex, const quad &dst, brush_flag flag = FX_BFLAG_NO);

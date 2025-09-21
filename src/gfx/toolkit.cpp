@@ -39,8 +39,8 @@ int rfps, rtps;
 bool __cur_in_tick;
 
 // global gfx usage
-shared<complex_buffer> global_buffer = nullptr;
-unique<brush> global_brush = nullptr;
+shared<complex_buffer> direct_buffer = nullptr;
+unique<brush> direct_brush = nullptr;
 
 double tk_nanos()
 {
@@ -224,8 +224,8 @@ vec2 tk_get_pos()
 void tk_lifecycle(int fps, int tps, bool vsync)
 {
     // init global gfx usage
-    global_buffer = make_buffer();
-    global_brush = make_brush(global_buffer);
+    direct_buffer = make_buffer();
+    direct_brush = make_brush(direct_buffer);
     // end region
     glfwSwapInterval(vsync ? 1 : 0);
 
@@ -270,11 +270,11 @@ void tk_lifecycle(int fps, int tps, bool vsync)
 
             for (auto e : event_render)
                 // Here passes a raw ptr.
-                e(global_brush.get(), lf_partial);
+                e(direct_brush.get(), lf_partial);
             lf_render_ticks++;
-            global_brush->flush();
+            direct_brush->flush();
             tk_swap_buffers();
-            global_buffer->clear();
+            direct_buffer->clear();
 
             render_frm++;
             last_render += DT_RENDER_NS;

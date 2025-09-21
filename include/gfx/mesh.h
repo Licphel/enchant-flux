@@ -16,11 +16,11 @@ struct mesh
     shared<brush> brush_binded;
 
     mesh();
-    brush* begin();
-    void end();
-    void draw(brush* gbrush);
+    brush *retry();
+    void record();
+    void draw(brush *gbrush);
 };
 
-unique<mesh> make_mesh();
+shared<mesh> make_mesh();
 
 } // namespace flux

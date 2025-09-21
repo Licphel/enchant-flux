@@ -54,15 +54,6 @@ struct complex_buffer
     void clear();
 };
 
-struct graph_state
-{
-    graph_mode mode = FX_TEXTURED_QUAD;
-    shared<texture> texture = nullptr;
-    shared<shader_program> program = nullptr;
-    void (*callback_uniform)(shared<shader_program> program) = nullptr;
-    void (*callback_buffer_append)(unique<complex_buffer> buf) = nullptr;
-};
-
 shared<complex_buffer> make_buffer();
 
 } // namespace flux

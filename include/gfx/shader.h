@@ -46,11 +46,14 @@ struct shader_program
 {
     /* unstable */ unsigned int __program_id = 0;
     void (*callback_setup)(shared<shader_program> program) = nullptr;
+    /* unstable */ bool __has_setup = false;
+    std::vector<shader_uniform> cached_uniforms;
 
     ~shader_program();
     shader_attrib get_attrib(const std::string &name);
     shader_attrib get_attrib(int index);
     shader_uniform get_uniform(const std::string &name);
+    shader_uniform cache_uniform(const std::string &name);
 };
 
 enum builtin_shader_type

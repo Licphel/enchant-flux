@@ -109,12 +109,21 @@ void brush::use(const camera &cam)
 
 void brush::use(shared<shader_program> program)
 {
-    if (m_state.program->__program_id != program->__program_id)
+    if (m_state.program != program)
     {
         flush();
         m_state.program = program;
     }
 }
+
+void brush::use(const graph_state &sts)
+{
+    flush();
+    use(m_state.program);
+    assert_texture(m_state.texture);
+    assert_mode(m_state.mode);
+    m_state = sts;
+};
 
 transform brush::get_combined_transform()
 {
@@ -159,11 +168,17 @@ void brush::flush()
 
     glUseProgram(program_used->__program_id);
     if (program_used->callback_setup != nullptr)
+    {
         program_used->callback_setup(program_used);
+    }
 
     if (m_state.callback_uniform != nullptr)
         m_state.callback_uniform(program_used);
-    program_used->get_uniform("u_proj").set(get_combined_transform());
+
+    if (program_used->cached_uniforms.size() == 0)
+        prtlog_throw(FATAL, "please cache at lease a uniform u_proj.");
+    else
+        program_used->cached_uniforms[0].set(get_combined_transform());
 
     if (m_state.mode == FX_TEXTURED_QUAD || m_state.mode == FX_COLORED_QUAD)
     {
@@ -176,7 +191,6 @@ void brush::flush()
     switch (m_state.mode)
     {
     case FX_TEXTURED_QUAD:
-        program_used->get_uniform("u_tex").set_texture_unit(1);
         bind_texture(1, m_state.texture);
         glDrawElements(GL_TRIANGLES, buf->index_count, GL_UNSIGNED_INT, 0);
         break;
@@ -211,9 +225,16 @@ void brush::assert_mode(graph_mode mode)
     }
 }
 
+static unsigned int __get_tex_root(shared<texture> tex)
+{
+    if (tex == nullptr)
+        return 0;
+    return tex->__texture_id;
+}
+
 void brush::assert_texture(shared<texture> tex)
 {
-    if (m_state.texture == nullptr || m_state.texture->__texture_id != tex->__texture_id)
+    if (__get_tex_root(m_state.texture) != __get_tex_root(tex))
     {
         flush();
         m_state.texture = tex;

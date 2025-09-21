@@ -9,7 +9,7 @@
 using namespace flux;
 
 shared<texture> tex, tex1;
-unique<mesh> msh;
+shared<mesh> msh;
 
 int main()
 {
@@ -41,13 +41,13 @@ int main()
 
         if (msh->buffer->vertex_count == 0)
         {
-            auto brush_1 = msh->begin();
-            for (int i = 0; i < 2048; i++)
+            auto brush_1 = msh->retry();
+            for (int i = 0; i < 512; i++)
             {
                 brush_1->draw_texture(tex, {i / 2.0, 0, 93, 31});
                 brush_1->draw_texture(tex1, {i / 2.0, 40, 93, 31});
             }
-            msh->end();
+            msh->record();
         }
         else
         {
