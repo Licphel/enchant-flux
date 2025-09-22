@@ -1,17 +1,18 @@
 {
     "configurations": [
-    {
-      "name": "Win32",
-      "includePath": [
-        "${workspaceFolder}/include",
-        "C:/msys64/mingw64/include"
-      ],
-      "defines": [],
-      "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "windows-gcc-x64"
-    }
-  ],
-  "version": 4
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "C:/msys64/mingw64/include",
+                "C:/msys64/mingw64/include/freetype2"
+            ],
+            "defines": [],
+            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
 }

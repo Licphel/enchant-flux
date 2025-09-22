@@ -1,6 +1,9 @@
 #pragma once
 #include <math/vec.h>
 #include <math/quad.h>
+#include <gfx/image.h>
+#include <gfx/brush.h>
+#include <map>
 
 namespace flux
 {
@@ -15,13 +18,49 @@ enum font_render_align
     FX_FONT_V_CENTER_ALIGN = 1LL << 5
 };
 
-struct font
+struct glyph
 {
-    /* unstable */ unsigned int __font_id;
+    shared<texture> texpart;
+    vec2 size;
+    double advance;
+    vec2 offset;
+
+    glyph operator*(double scl)
+    {
+        return {
+            texpart,
+            size * scl,
+            advance * scl,
+            offset * scl,
+        };
+    }
 };
 
-double ft_height(font f);
-quad ft_area(font f, double x, double y, font_render_align align);
-    
-} // namespace flux
+struct font
+{
+    std::map<general_char, glyph> glyph_map;
+    double f_height = 0;
+    double f_lspc = 0;
+    double f_ascend = 0;
+    double f_descend = 0;
 
+    struct _impl;
+    unique<_impl> __p;
+
+    font();
+    ~font();
+
+    glyph get_glyph(general_char ch)
+    {
+        if (glyph_map.find(ch) == glyph_map.end())
+            return glyph_map[ch] = make_glyph(ch);
+        return glyph_map[ch];
+    }
+
+    glyph make_glyph(general_char ch);
+    quad make_vtx(brush *brush, const std::string &str, double x, double y, double scale = 1, double max_w = INT_MAX);
+};
+
+shared<font> ft_make_font(const hpath &path, double res_h, double pixel_h);
+
+} // namespace flux

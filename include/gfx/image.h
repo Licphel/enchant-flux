@@ -29,7 +29,7 @@ struct texture
     int fheight = 0;
     /* maybe nullptr */ shared<image> __relying_image = nullptr;
     /* unstable */ unsigned int __texture_id = 0;
-    bool __is_framebuffer;
+    /* unstable */ bool __is_framebuffer;
     shared<texture> root = nullptr;
 
     ~texture();

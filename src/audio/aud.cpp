@@ -115,7 +115,6 @@ shared<track> au_load_track(const hpath &path)
     if (file[index++] != 'R' || file[index++] != 'I' || file[index++] != 'F' || file[index++] != 'F')
         prtlog_throw(FATAL, "not a wave file: {}", path.absolute);
 
-    uint32_t fileSize = *reinterpret_cast<const uint32_t *>(&file[index]);
     index += 4;
 
     if (file[index++] != 'W' || file[index++] != 'A' || file[index++] != 'V' || file[index++] != 'E')

@@ -32,7 +32,7 @@ static uint16_t __to_half(float f)
 
 void __w_half(shared<complex_buffer> buf, const color &col)
 {
-    *buf << __to_half(col.r) << __to_half(col.g) << __to_half(col.b) << __to_half(col.a);
+    buf->vtx(__to_half(col.r)).vtx(__to_half(col.g)).vtx(__to_half(col.b)).vtx(__to_half(col.a));
 }
 
 brush::brush()
@@ -101,6 +101,29 @@ void brush::ts_trs(const vec2 &v)
     transform_stack.top().translate(v.x, v.y);
 }
 
+void brush::ts_scl(const vec2 &v)
+{
+    transform_stack.top().scale(v.x, v.y);
+}
+
+void brush::ts_shr(const vec2 &v)
+{
+    transform_stack.top().shear(v.x, v.y);
+}
+
+void brush::ts_rot(double r)
+{
+    transform_stack.top().rotate(r);
+}
+
+void brush::ts_rot(const vec2 &v, double r)
+{
+    transform &trs = transform_stack.top();
+    trs.translate(v.x, v.y);
+    trs.rotate(r);
+    trs.translate(-v.x, -v.y);
+}
+
 void brush::use(const camera &cam)
 {
     flush();
@@ -162,11 +185,12 @@ void brush::flush()
     glBindBuffer(GL_ARRAY_BUFFER, msh->__vbo);
     if (buf->dirty)
     {
-        if (buf->__cap_changed)
+        if (buf->__vcap_changed)
             glBufferData(GL_ARRAY_BUFFER, buf->vertex_buf.capacity(), buf->vertex_buf.data(), GL_DYNAMIC_DRAW);
         else
             glBufferSubData(GL_ARRAY_BUFFER, 0, buf->vertex_buf.size(), buf->vertex_buf.data());
     }
+    buf->__vcap_changed = false;
 
     glUseProgram(program_used->__program_id);
     if (program_used->callback_setup != nullptr)
@@ -183,12 +207,12 @@ void brush::flush()
     if (m_state.mode == FX_TEXTURED_QUAD || m_state.mode == FX_COLORED_QUAD)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, msh->__ebo);
-        if (buf->__cap_changed)
+        if (buf->__icap_changed)
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, buf->index_buf.capacity() * 4, buf->index_buf.data(), GL_STATIC_DRAW);
         else
             glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, buf->index_buf.size() * 4, buf->index_buf.data());
     }
-    buf->__cap_changed = false;
+    buf->__icap_changed = false;
     buf->dirty = false;
 
     switch (m_state.mode)
@@ -249,6 +273,8 @@ void brush::assert_texture(shared<texture> tex)
 
 void brush::draw_texture(shared<texture> tex, const quad &dst, const quad &src, brush_flag flag)
 {
+    if (tex == nullptr)
+        return;
     auto buf = lock_buffer();
 
     assert_mode(FX_TEXTURED_QUAD);
@@ -261,29 +287,38 @@ void brush::draw_texture(shared<texture> tex, const quad &dst, const quad &src, 
 
     if (flag & FX_BFLAG_FLIP_X)
         std::swap(u, u2);
-    if ((flag & FX_BFLAG_FLIP_Y) || tex->__is_framebuffer)
+#ifdef FX_Y_IS_DOWN
+    if (!(flag & FX_BFLAG_FLIP_Y))
+#else
+    if ((flag & FX_BFLAG_FLIP_Y))
+#endif
         std::swap(v, v2);
 
     float x = dst.x, y = dst.y, w = dst.width, h = dst.height;
 
-    *buf << x + w << y + h;
+    buf->vtx(x + w).vtx(y + h);
     __w_half(buf, vertex_color[2]);
-    *buf << u2 << v;
-    *buf << x + w << y;
+    buf->vtx(u2).vtx(v);
+
+    buf->vtx(x + w).vtx(y);
     __w_half(buf, vertex_color[3]);
-    *buf << u2 << v2;
-    *buf << x << y;
+    buf->vtx(u2).vtx(v2);
+
+    buf->vtx(x).vtx(y);
     __w_half(buf, vertex_color[0]);
-    *buf << u << v2;
-    *buf << x << y + h;
+    buf->vtx(u).vtx(v2);
+
+    buf->vtx(x).vtx(y + h);
     __w_half(buf, vertex_color[1]);
-    *buf << u << v;
+    buf->vtx(u).vtx(v);
+
     buf->end_quad();
 }
 
 void brush::draw_texture(shared<texture> tex, const quad &dst, brush_flag flag)
 {
-    draw_texture(tex, dst, {0.0, 0.0, tex->width, tex->height});
+    if (tex != nullptr)
+        draw_texture(tex, dst, {0.0, 0.0, tex->width, tex->height}, flag);
 }
 
 void brush::draw_rect(const quad &dst)
@@ -294,14 +329,18 @@ void brush::draw_rect(const quad &dst)
 
     float x = dst.x, y = dst.y, w = dst.width, h = dst.height;
 
-    *buf << x + w << y + h;
+    buf->vtx(x + w).vtx(y + h);
     __w_half(buf, vertex_color[2]);
-    *buf << x + w << y;
+
+    buf->vtx(x + w).vtx(y);
     __w_half(buf, vertex_color[3]);
-    *buf << x << y;
+
+    buf->vtx(x).vtx(y);
     __w_half(buf, vertex_color[0]);
-    *buf << x << y + h;
+
+    buf->vtx(x).vtx(y + h);
     __w_half(buf, vertex_color[1]);
+
     buf->end_quad();
 }
 
@@ -324,11 +363,11 @@ void brush::draw_triagle(const vec2 &p1, const vec2 &p2, const vec2 &p3)
 
     assert_mode(FX_COLORED_TRIANGLE);
 
-    *buf << float(p1.x) << float(p1.y);
+    buf->vtx(float(p1.x)).vtx(float(p1.y));
     __w_half(buf, vertex_color[0]);
-    *buf << float(p2.x) << float(p2.y);
+    buf->vtx(float(p2.x)).vtx(float(p2.y));
     __w_half(buf, vertex_color[1]);
-    *buf << float(p3.x) << float(p3.y);
+    buf->vtx(float(p3.x)).vtx(float(p3.y));
     __w_half(buf, vertex_color[2]);
     buf->new_vertex(3);
 }
@@ -339,9 +378,9 @@ void brush::draw_line(const vec2 &p1, const vec2 &p2)
 
     assert_mode(FX_COLORED_LINE);
 
-    *buf << float(p1.x) << float(p1.y);
+    buf->vtx(float(p1.x)).vtx(float(p1.y));
     __w_half(buf, vertex_color[0]);
-    *buf << float(p2.x) << float(p2.y);
+    buf->vtx(float(p2.x)).vtx(float(p2.y));
     __w_half(buf, vertex_color[1]);
     buf->new_vertex(2);
 }
@@ -352,7 +391,7 @@ void brush::draw_point(const vec2 &p)
 
     assert_mode(FX_COLORED_POINT);
 
-    *buf << float(p.x) << float(p.y);
+    buf->vtx(float(p.x)).vtx(float(p.y));
     __w_half(buf, vertex_color[0]);
     buf->new_vertex(1);
 }

@@ -71,6 +71,10 @@ struct brush
     void ts_pop();
     void ts_load(const transform &t);
     void ts_trs(const vec2 &v);
+    void ts_scl(const vec2 &v);
+    void ts_shr(const vec2 &v);
+    void ts_rot(double r);
+    void ts_rot(const vec2 &v, double r);
     transform get_combined_transform();
 
     void flush();

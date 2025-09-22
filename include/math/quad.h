@@ -69,10 +69,12 @@ struct quad
         return *this;
     }
 
-    quad &expand(double nw, double nh)
+    quad &inflate_c(double nw, double nh)
     {
         width += nw;
         height += nh;
+        x -= nw / 2.0;
+        y -= nh / 2.0;
         return *this;
     }
 

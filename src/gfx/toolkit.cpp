@@ -90,6 +90,7 @@ void tk_make_handle()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
     glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
@@ -128,7 +129,11 @@ void tk_make_handle()
         for (auto e : event_cursor_pos)
             e(x, y);
         mcx = x;
+#ifdef FX_Y_IS_DOWN
         mcy = y;
+#else
+        mcy = tk_get_size().y - y;
+#endif
     });
     glfwSetKeyCallback(window, [](GLFWwindow *, int button, int scancode, int action, int mods) {
         for (auto e : event_key_state)

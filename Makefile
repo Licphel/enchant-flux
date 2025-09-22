@@ -1,6 +1,7 @@
-CXX         := g++
+CXX         := ccache g++
 CXXFLAGS    := -std=c++17 -Wall -Wextra -g
 LDFLAGS     += -pthread -mconsole
+MAKEFLAGS 	+= -j$(shell nproc)
 SRC			:= src
 INCLUDE		:= include
 LIB			:= lib
@@ -23,6 +24,7 @@ RM 			= rm -f
 MD			:= mkdir -p
 endif
 
+INCLUDEDIRS += C:/msys64/mingw64/include/freetype2
 INCLUDEDIRS += C:/msys64/mingw64/include
 LIBDIRS     += C:/msys64/mingw64/lib
 

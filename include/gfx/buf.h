@@ -27,18 +27,37 @@ struct complex_buffer
     int vertex_count = 0;
     int index_count = 0;
     bool dirty;
-    bool __cap_changed;
+    bool __icap_changed;
+    bool __vcap_changed;
 
-    template <typename T> complex_buffer &operator<<(const T &t)
+    template <typename T> complex_buffer & vtx(const T &t)
     {
         std::size_t s = sizeof(t);
         std::size_t old = vertex_buf.size();
-        std::size_t oldcap = vertex_buf.capacity();
+        if(old + s > vertex_buf.capacity())
+        {
+            vertex_buf.reserve(vertex_buf.capacity() * 2);
+            __vcap_changed = true;
+        }
+    
         vertex_buf.resize(old + s);
-        if (vertex_buf.capacity() != oldcap)
-            __cap_changed = true;
-
         std::memcpy(vertex_buf.data() + old, &t, s);
+        dirty = true;
+
+        return *this;
+    }
+
+    complex_buffer & idx(unsigned int t)
+    {
+        std::size_t s = sizeof(t);
+        std::size_t old = index_buf.size();
+        if(old + s > index_buf.capacity())
+        {
+            index_buf.reserve(index_buf.capacity() * 2);
+            __icap_changed = true;
+        }
+    
+        index_buf.push_back(t);
         dirty = true;
 
         return *this;

@@ -11,6 +11,14 @@ void complex_buffer::end_quad()
     new_index(6);
     new_vertex(4);
 
+    std::size_t s = sizeof(unsigned int) * 6;
+    std::size_t old = index_buf.size();
+    if (old + s > index_buf.capacity())
+    {
+        index_buf.reserve(index_buf.capacity() * 2);
+        __icap_changed = true;
+    }
+
     unsigned int k = vertex_count - 4;
     index_buf.push_back(0 + k);
     index_buf.push_back(1 + k);
