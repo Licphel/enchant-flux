@@ -1,11 +1,13 @@
 #include <gfx/brush.h>
 #include <gfx/image.h>
 #include <gfx/toolkit.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <audio/aud.h>
 #include <gfx/atlas.h>
 #include <gfx/mesh.h>
 #include <gfx/font.h>
+#include <kernel/bino.h>
+#include <script/interop.h>
 
 using namespace flux;
 
@@ -13,8 +15,17 @@ shared<texture> tex, tex1;
 shared<mesh> msh;
 shared<font> fnt;
 
-int main()
+int main(int argc, char *argv[])
 {
+    auto hp = open_local("script/main.js");
+    auto str = read_str(hp);
+
+    ip_init();
+    dynvalue dv = dynvalue::veval(hp.absolute, str);
+    dynvalue fn = dv.vsub("m");
+    dynvalue vs = dynvalue::vstr("ok, from c++!");
+    fn.vcall(1, vs);
+
     tk_make_handle();
     tk_title("Enchant Flux");
     tk_size(vec2(800, 450));
@@ -48,6 +59,11 @@ int main()
         brush->cl_set({0, 1, 1, 1});
         brush->draw_line({-1000, 0}, {1000, 0});
         brush->draw_line({0, -1000}, {0, 1000});
+        brush->cl_norm();
+
+        brush->cl_set({1, 1, 1, 0.5});
+        for (int i = 0; i < 10; i++)
+            brush->draw_rect({i * 40, i * 40, 50, 50});
         brush->cl_norm();
 
         if (tk_key_press(KEY_F))

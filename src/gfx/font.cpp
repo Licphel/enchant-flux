@@ -1,6 +1,6 @@
 #include <gfx/font.h>
 #include <gfx/atlas.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <cuchar>
 #include <string>
 #include <freetype2/ft2build.h>

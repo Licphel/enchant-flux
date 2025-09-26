@@ -58,8 +58,19 @@ std::vector<hpath> sub_files(const hpath &path);
 std::vector<hpath> recurse_files(const hpath &path);
 hpath execution_path();
 
-std::vector<byte> read_bytes(const hpath &path);
-void write_bytes(const hpath &path, const std::vector<byte> &data);
+enum compression_level
+{
+    FX_COMP_NO = 0,
+    FX_COMP_FASTEST = 1,
+    FX_COMP_OPTIMAL = 2,
+    FX_COMP_SMALLEST = 3,
+    
+    FX_COMP_RAW_READ = 8,
+    FX_COMP_DCMP_READ = 9
+};
+
+std::vector<byte> read_bytes(const hpath &path, compression_level clvl = FX_COMP_RAW_READ);
+void write_bytes(const hpath &path, const std::vector<byte> &data, compression_level clvl = FX_COMP_NO);
 std::string read_str(const hpath &path);
 void write_str(const hpath &path, const std::string &text);
 

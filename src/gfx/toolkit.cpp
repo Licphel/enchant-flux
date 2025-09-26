@@ -8,7 +8,7 @@
 #include <glfw/glfw3.h>
 #include <al/alc.h>
 #include <al/al.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <thread>
 #include <vector>
 #include <gfx/mesh.h>
@@ -249,50 +249,59 @@ void tk_lifecycle(int fps, int tps, bool vsync)
     double last_calc = current;
     double last_stat = current;
 
-    while (!tk_poll_events())
+    try
     {
-        current = tk_nanos();
-
-        logic_debt += (current - last_calc);
-        last_calc = current;
-
-        int max_catch = 4;
-        while (logic_debt >= DT_LOGIC_NS && max_catch--)
+        while (!tk_poll_events())
         {
-            __cur_in_tick = true;
-            for (auto e : event_tick)
-                e(lf_delta);
-            __cur_in_tick = false;
-            lf_ticks++;
-            tick_frm++;
-            logic_debt -= DT_LOGIC_NS;
+            current = tk_nanos();
+
+            logic_debt += (current - last_calc);
+            last_calc = current;
+
+            int max_catch = 4;
+            while (logic_debt >= DT_LOGIC_NS && max_catch--)
+            {
+                __cur_in_tick = true;
+                for (auto e : event_tick)
+                    e(lf_delta);
+                __cur_in_tick = false;
+                lf_ticks++;
+                tick_frm++;
+                logic_debt -= DT_LOGIC_NS;
+            }
+
+            if (fps <= 0 || current - last_render >= DT_RENDER_NS)
+            {
+                lf_partial = 1.0 - (logic_debt / DT_LOGIC_NS);
+                lf_partial = lf_partial < 0.0 ? 0.0 : lf_partial > 1.0 ? 1.0 : lf_partial;
+
+                auto brush = direct_mesh->brush_binded.get();
+                for (auto e : event_render)
+                    e(brush, lf_partial);
+                lf_render_ticks++;
+                brush->flush();
+                tk_swap_buffers();
+
+                render_frm++;
+                last_render += DT_RENDER_NS;
+                if (last_render < current - DT_RENDER_NS)
+                    last_render = current;
+            }
+
+            if (current - last_stat > 500'000'000.0)
+            {
+                rtps = tick_frm * 2;
+                rfps = render_frm * 2;
+                tick_frm = render_frm = 0;
+                last_stat = current;
+            }
         }
-
-        if (fps <= 0 || current - last_render >= DT_RENDER_NS)
-        {
-            lf_partial = 1.0 - (logic_debt / DT_LOGIC_NS);
-            lf_partial = lf_partial < 0.0 ? 0.0 : lf_partial > 1.0 ? 1.0 : lf_partial;
-
-            auto brush = direct_mesh->brush_binded.get();
-            for (auto e : event_render)
-                e(brush, lf_partial);
-            lf_render_ticks++;
-            brush->flush();
-            tk_swap_buffers();
-
-            render_frm++;
-            last_render += DT_RENDER_NS;
-            if (last_render < current - DT_RENDER_NS)
-                last_render = current;
-        }
-
-        if (current - last_stat > 500'000'000.0)
-        {
-            rtps = tick_frm * 2;
-            rfps = render_frm * 2;
-            tick_frm = render_frm = 0;
-            last_stat = current;
-        }
+    }
+    catch (std::exception &e)
+    {
+        prtlog(FATAL, "fatal error occurred: {}", e.what());
+        // re-throw for debugging & stack trace.
+        throw e;
     }
 
     for (auto e : event_dispose)

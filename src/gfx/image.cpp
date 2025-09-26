@@ -1,5 +1,5 @@
 #include <gfx/image.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
 

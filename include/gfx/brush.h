@@ -11,15 +11,6 @@
 namespace flux
 {
 
-enum brush_shape
-{
-    FX_BRUSH_RECT,
-    FX_BRUSH_OVAL,
-    FX_BRUSH_POINT,
-    FX_BRUSH_LINE,
-    FX_BRUSH_TRIANGLE
-};
-
 enum brush_flag
 {
     FX_BFLAG_NO = 1LL << 0,

@@ -41,7 +41,10 @@ EXTERNAL_LIBS 		:= $(wildcard $(EXTERNAL_LIB)/*.a) $(wildcard $(EXTERNAL_LIB)/*.
 EXTERNAL_LIB_NAMES 	:= $(patsubst lib%.a,-l%,$(notdir $(filter %.a,$(EXTERNAL_LIBS)))) \
                       $(patsubst lib%.so,-l%,$(notdir $(filter %.so,$(EXTERNAL_LIBS))))
 LFLAGS 				+= -L$(EXTERNAL_LIB) $(EXTERNAL_LIB_NAMES)
-LFLAGS 				+= -lopenal -lfreetype -lfmt -lglfw3 -lglew32 -lopengl32 -lgdi32 -luser32 -lkernel32
+LFLAGS 				+= -lbrotlienc -lbrotlidec -lbrotlicommon  
+LFLAGS 				+= -lopenal -lfreetype -lfmt -lglfw3 -lglew32 -lopengl32
+LFLAGS 				+= -lgdi32 -luser32 -lkernel32
+LFLAGS				+= -lqjs
 LFLAGS 				+= -mconsole
 LFLAGS				+= -g -O0
 

@@ -1,5 +1,9 @@
 #include <kernel/hio.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
+
+#define BROTLI_IMPLEMENTATION
+#include <brotli/encode.h>
+#include <brotli/decode.h>
 
 namespace flux
 {
@@ -91,31 +95,98 @@ hpath execution_path()
     return hpath(fs::current_path().string()) / "run";
 }
 
-std::vector<byte> read_bytes(const hpath &path)
+static std::vector<byte> brotli_compress(const std::vector<byte> &src, int quality)
+{
+    if (src.empty())
+        return {};
+    size_t max_sz = BrotliEncoderMaxCompressedSize(src.size());
+    std::vector<byte> out(max_sz);
+    size_t encoded_sz = max_sz;
+    if (BROTLI_TRUE != BrotliEncoderCompress(quality, BROTLI_DEFAULT_WINDOW, BROTLI_DEFAULT_MODE, src.size(),
+                                             src.data(), &encoded_sz, out.data()))
+        prtlog_throw(FATAL, "Brotli encoder failed");
+    out.resize(encoded_sz);
+    return out;
+}
+
+static std::vector<byte> brotli_decompress(const std::vector<byte> &src)
+{
+    if (src.empty())
+        return {};
+    std::vector<byte> dst;
+    size_t avail_in = src.size();
+    const uint8_t *nxt_in = src.data();
+    BrotliDecoderState *st = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
+    if (!st)
+        prtlog_throw(FATAL, "Brotli decoder create failed");
+
+    for (;;)
+    {
+        uint8_t buf[64 * 1024];
+        size_t avail_out = sizeof(buf);
+        uint8_t *nxt_out = buf;
+        auto rc = BrotliDecoderDecompressStream(st, &avail_in, &nxt_in, &avail_out, &nxt_out, nullptr);
+        size_t produced = sizeof(buf) - avail_out;
+        if (produced)
+            dst.insert(dst.end(), buf, buf + produced);
+        if (rc == BROTLI_DECODER_RESULT_SUCCESS)
+            break;
+        if (rc == BROTLI_DECODER_RESULT_ERROR)
+            prtlog_throw(FATAL, "Brotli decoder error");
+    }
+    BrotliDecoderDestroyInstance(st);
+    return dst;
+}
+
+std::vector<byte> read_bytes(const hpath &path, compression_level clvl)
 {
     std::ifstream file(path.__npath, std::ios::binary | std::ios::ate);
     if (!file)
         prtlog_throw(FATAL, "cannot find {}", path.absolute);
-
     size_t len = file.tellg();
     file.seekg(0, std::ios::beg);
-
-    std::vector<byte> buffer(len);
-    file.read(reinterpret_cast<char *>(buffer.data()), len);
+    std::vector<byte> raw(len);
+    file.read(reinterpret_cast<char *>(raw.data()), len);
     if (!file)
         prtlog_throw(FATAL, "short read in {}", path.absolute);
 
-    return buffer;
+    if (clvl == FX_COMP_RAW_READ)
+        return raw;
+
+    std::vector<byte> dec = brotli_decompress(raw);
+    if (dec.empty() && !raw.empty())
+        return raw;
+    return dec;
 }
 
-void write_bytes(const hpath &path, const std::vector<byte> &data)
+void write_bytes(const hpath &path, const std::vector<byte> &data, compression_level clvl)
 {
     if (!exists(path))
         mkdirs(path);
+
+    std::vector<byte> out;
+    switch (clvl)
+    {
+    case FX_COMP_NO:
+        out = data;
+        break;
+    case FX_COMP_FASTEST:
+        out = brotli_compress(data, 1);
+        break;
+    case FX_COMP_OPTIMAL:
+        out = brotli_compress(data, 6);
+        break;
+    case FX_COMP_SMALLEST:
+        out = brotli_compress(data, 11);
+        break;
+    default:
+        prtlog_throw(FATAL, "unsupported compression level {}", (int)clvl);
+    }
+
     std::ofstream file(path.__npath, std::ios::binary);
     if (!file)
         prtlog_throw(FATAL, "cannot open {} for write", path.absolute);
-    file.write(reinterpret_cast<const char *>(data.data()), data.size());
+    file.write(reinterpret_cast<const char *>(out.data()), out.size());
 }
 
 std::string read_str(const hpath &path)

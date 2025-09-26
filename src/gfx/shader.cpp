@@ -2,7 +2,7 @@
 #include <kernel/def.h>
 #include <memory>
 #include <gl/glew.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 
 namespace flux
 {

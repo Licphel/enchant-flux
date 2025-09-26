@@ -15,7 +15,8 @@ enum graph_mode
     FX_COLORED_TRIANGLE = 2,
     FX_COLORED_QUAD = 3,
 
-    FX_TEXTURED_QUAD = 16,
+    //FX_TEXTURED_TRIANGLE = 16, <-- not implemented yet
+    FX_TEXTURED_QUAD = 17
 };
 
 // currently it only supports quad-drawing indexing.

@@ -1,7 +1,7 @@
 #include <gfx/atlas.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <algorithm>
 #include <vector>
 #include <math/quad.h>

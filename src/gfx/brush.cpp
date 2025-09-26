@@ -3,7 +3,7 @@
 #include <gl/glew.h>
 #include <gl/gl.h>
 #include <memory>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <gfx/mesh.h>
 
 namespace flux
@@ -469,7 +469,7 @@ void brush::use(blend_mode mode)
     if (mode == FX_NORMAL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     else if (mode == FX_ADDITIVE_BLEND)
-        glBlendFunc(GL_ONE, GL_ONE);
+        glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
 }
 
 unique<brush> make_brush(shared<complex_buffer> buf)

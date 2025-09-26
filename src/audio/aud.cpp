@@ -3,7 +3,7 @@
 #include <al/al.h>
 #include <gfx/toolkit.h>
 #include <vector>
-#include <kernel/common.h>
+#include <kernel/log.h>
 #include <memory>
 
 namespace flux
@@ -151,7 +151,7 @@ shared<track> au_load_track(const hpath &path)
             int16_t audio_format = *reinterpret_cast<const int16_t *>(&file[index]);
             index += 2;
             if (audio_format != 1)
-               prtlog_throw(FATAL, "unknown format: {}", path.absolute);
+                prtlog_throw(FATAL, "unknown format: {}", path.absolute);
 
             n_ch = *reinterpret_cast<const int16_t *>(&file[index]);
             index += 2;
