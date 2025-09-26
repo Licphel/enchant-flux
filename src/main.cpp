@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     ip_init();
     dynvalue dv = dynvalue::veval(hp.absolute, str);
-    dynvalue fn = dv.vsub("m");
+    dynvalue fn = dynvalue::vgval("m");
     dynvalue vs = dynvalue::vstr("ok, from c++!");
     fn.vcall(1, vs);
 

@@ -19,6 +19,43 @@ struct dynvalue::_impl
     JSValue rawv;
 };
 
+void __dump_jsval(JSValueConst val)
+{
+    prtlog(DEBUG, "====== value print ======");
+
+    if (JS_IsException(val) || JS_IsUndefined(val))
+    {
+        prtlog(WARN, "value is undefined or an exception");
+        return;
+    }
+
+    JSPropertyEnum *tab = nullptr;
+    uint32_t len = 0;
+
+    if (JS_GetOwnPropertyNames(ctx, &tab, &len, val, JS_GPN_STRING_MASK) < 0)
+    {
+        prtlog(WARN, "failed to get own property names.");
+        return;
+    }
+
+    prtlog(DEBUG, "detected {} properties.", len);
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        JSAtom atom = tab[i].atom;
+        const char *key = JS_AtomToCString(ctx, atom);
+        if (!key)
+            continue;
+
+        JSValue v = JS_GetProperty(ctx, val, atom);
+        const char *valStr = JS_ToCString(ctx, v);
+        prtlog(DEBUG, "| - {} = {}", key, valStr ? valStr : "?");
+        JS_FreeCString(ctx, valStr);
+        JS_FreeValue(ctx, v);
+        JS_FreeCString(ctx, key);
+    }
+    js_free(ctx, tab);
+}
+
 void __prterr()
 {
     JSValue exception = JS_GetException(ctx);
@@ -85,6 +122,35 @@ dynvalue dynvalue::vbool(bool v)
     return __genv(JS_NewBool(ctx, v), __IP_BOOL);
 }
 
+int dynvalue::tint()
+{
+    int i;
+    JS_ToInt32(ctx, &i, __p->rawv);
+    return i;
+}
+
+double dynvalue::tdouble()
+{
+    double i;
+    JS_ToFloat64(ctx, &i, __p->rawv);
+    return i;
+}
+
+std::string dynvalue::tstr()
+{
+    const char *cstr = JS_ToCString(ctx, __p->rawv);
+    if (!cstr)
+        return "";
+    std::string s(cstr);
+    JS_FreeCString(ctx, cstr);
+    return s;
+}
+
+bool dynvalue::tbool()
+{
+    return JS_ToBool(ctx, __p->rawv);
+}
+
 dynvalue dynvalue::veval(const std::string &name, const std::string &code)
 {
 #ifdef MODULIZED
@@ -100,7 +166,9 @@ dynvalue dynvalue::veval(const std::string &name, const std::string &code)
         JS_FreeValue(ctx, func_val);
         return __genv(JS_UNDEFINED, __IP_UNDEF);
     }
-
+#ifdef MODULIZED
+    js_module_set_import_meta(ctx, func_val, true, true);
+#endif
     JSValue ret = JS_EvalFunction(ctx, func_val);
     if (JS_IsException(ret))
     {
@@ -109,21 +177,7 @@ dynvalue dynvalue::veval(const std::string &name, const std::string &code)
         return __genv(JS_UNDEFINED, __IP_UNDEF);
     }
 
-#ifdef MODULIZED
-    JSModuleDef *m = (JSModuleDef *)JS_VALUE_GET_PTR(ret);
-    JS_FreeValue(ctx, ret);
-
-    if (!m)
-    {
-        prtlog_throw(FATAL, "module definition is null.");
-        return __genv(JS_UNDEFINED, __IP_UNDEF);
-    }
-
-    JSValue ns = JS_GetModuleNamespace(ctx, m);
-    return __genv(ns, __IP_MODULE);
-#else
     return __genv(ret, __IP_UNKNOWN);
-#endif
 }
 
 dynvalue dynvalue::vgval(const std::string &key)
@@ -212,6 +266,8 @@ JSModuleDef *__gen_module_loader(JSContext *ctx, const char *name, void *opaque)
         JS_FreeValue(ctx, func_val);
         return nullptr;
     }
+
+    js_module_set_import_meta(ctx, func_val, true, 1);
 
     JSValue ret = JS_EvalFunction(ctx, func_val);
     if (JS_IsException(ret))

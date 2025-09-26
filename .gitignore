@@ -1,6 +1,6 @@
 # Folders
-build/
-bundle_lib/
+/build
+/bundle_lib
 
 # Prerequisites
 *.d

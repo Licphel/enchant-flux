@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#define FLUX_VERSION "v1.1.0-f"
+#define FLUX_VERSION "v1.1.0"
 
 // I prefer the y-axis to point upwards, but modern graphics APIs usually have
 // the y-axis pointing downwards. You can undefine this to make the y-axis point upwards.

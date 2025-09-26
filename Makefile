@@ -43,8 +43,8 @@ EXTERNAL_LIB_NAMES 	:= $(patsubst lib%.a,-l%,$(notdir $(filter %.a,$(EXTERNAL_LI
 LFLAGS 				+= -L$(EXTERNAL_LIB) $(EXTERNAL_LIB_NAMES)
 LFLAGS 				+= -lbrotlienc -lbrotlidec -lbrotlicommon  
 LFLAGS 				+= -lopenal -lfreetype -lfmt -lglfw3 -lglew32 -lopengl32
-LFLAGS 				+= -lgdi32 -luser32 -lkernel32
-LFLAGS				+= -lqjs
+LFLAGS				+= -lquickjs -ldl
+LFLAGS 				+= -lgdi32 -luser32 -lkernel32 -lm
 LFLAGS 				+= -mconsole
 LFLAGS				+= -g -O0
 

@@ -3,7 +3,8 @@
 #include <kernel/def.h>
 #include <stdarg.h>
 
-#define MODULIZED
+// Unsupported yet
+// #define MODULIZED
 
 namespace flux
 {
@@ -41,6 +42,11 @@ struct dynvalue
 
     dynvalue vsub(const std::string &key);
     dynvalue vcall(int argc, ...);
+
+    int tint();
+    double tdouble();
+    std::string tstr();
+    bool tbool();
 };
 
 void ip_init();
