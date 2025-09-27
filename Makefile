@@ -1,11 +1,12 @@
 CXX         := ccache g++
-CXXFLAGS    := -std=c++17 -Wall -Wextra -g
+CXXFLAGS    := -std=c++17 -Wall -Wextra -g -fdiagnostics-color=always
 LDFLAGS     += -pthread -mconsole
 MAKEFLAGS 	+= -j$(shell nproc)
 SRC			:= src
 INCLUDE		:= include
 LIB			:= lib
 BUILD   	:= build
+DLLDIR		:= dlls
 
 SOURCEDIRS	:= $(SRC) $(wildcard $(SRC)/*/)
 INCLUDEDIRS	:= $(INCLUDE) $(wildcard $(INCLUDE)/*/)
@@ -41,12 +42,19 @@ EXTERNAL_LIBS 		:= $(wildcard $(EXTERNAL_LIB)/*.a) $(wildcard $(EXTERNAL_LIB)/*.
 EXTERNAL_LIB_NAMES 	:= $(patsubst lib%.a,-l%,$(notdir $(filter %.a,$(EXTERNAL_LIBS)))) \
                       $(patsubst lib%.so,-l%,$(notdir $(filter %.so,$(EXTERNAL_LIBS))))
 LFLAGS 				+= -L$(EXTERNAL_LIB) $(EXTERNAL_LIB_NAMES)
-LFLAGS 				+= -lbrotlienc -lbrotlidec -lbrotlicommon  
-LFLAGS 				+= -lopenal -lfreetype -lfmt -lglfw3 -lglew32 -lopengl32
-LFLAGS				+= -lquickjs -ldl
-LFLAGS 				+= -lgdi32 -luser32 -lkernel32 -lm
+
+# dynamic linked libs
+LFLAGS 				+= -lopenal -lfreetype -lfmt -lglfw3 -lglew32 -lbrotlienc -lbrotlidec -lbrotlicommon  
+# static linked libs
+LFLAGS				+= -lquickjs
+# system libs
+LFLAGS 				+= -lgdi32 -luser32 -lkernel32  -lopengl32
+
 LFLAGS 				+= -mconsole
 LFLAGS				+= -g -O0
+
+LDFLAGS 			+= -Wl,--disable-dynamicbase -Wl,--image-base,0x140000000
+LDFLAGS 			+= -Wl,-rpath,dlls
 
 # ---------------------------- #
 

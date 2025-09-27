@@ -110,15 +110,15 @@ shared<track> au_load_track(const hpath &path)
     size_t index = 0;
 
     if (file.size() < 12)
-        prtlog_throw(FATAL, "too small file: {}", path.absolute);
+        prtlog_throw(FX_FATAL, "too small file: {}", path.absolute);
 
     if (file[index++] != 'R' || file[index++] != 'I' || file[index++] != 'F' || file[index++] != 'F')
-        prtlog_throw(FATAL, "not a wave file: {}", path.absolute);
+        prtlog_throw(FX_FATAL, "not a wave file: {}", path.absolute);
 
     index += 4;
 
     if (file[index++] != 'W' || file[index++] != 'A' || file[index++] != 'V' || file[index++] != 'E')
-        prtlog_throw(FATAL, "not a wave file: {}", path.absolute);
+        prtlog_throw(FX_FATAL, "not a wave file: {}", path.absolute);
 
     int samp_rate = 0;
     int16_t bps = 0;
@@ -141,17 +141,17 @@ shared<track> au_load_track(const hpath &path)
         index += 4;
 
         if (index + chunk_size > file.size())
-            prtlog_throw(FATAL, "invalid chunk size: {}", path.absolute);
+            prtlog_throw(FX_FATAL, "invalid chunk size: {}", path.absolute);
 
         if (identifier == "fmt ")
         {
             if (chunk_size != 16)
-                prtlog_throw(FATAL, "unknown format: {}", path.absolute);
+                prtlog_throw(FX_FATAL, "unknown format: {}", path.absolute);
 
             int16_t audio_format = *reinterpret_cast<const int16_t *>(&file[index]);
             index += 2;
             if (audio_format != 1)
-                prtlog_throw(FATAL, "unknown format: {}", path.absolute);
+                prtlog_throw(FX_FATAL, "unknown format: {}", path.absolute);
 
             n_ch = *reinterpret_cast<const int16_t *>(&file[index]);
             index += 2;
@@ -169,7 +169,7 @@ shared<track> au_load_track(const hpath &path)
                 else if (bps == 16)
                     format = AL_FORMAT_MONO16;
                 else
-                    prtlog_throw(FATAL, "can't play mono " + std::to_string(bps) + " sound.");
+                    prtlog_throw(FX_FATAL, "can't play mono " + std::to_string(bps) + " sound.");
             }
             else if (n_ch == 2)
             {
@@ -178,15 +178,15 @@ shared<track> au_load_track(const hpath &path)
                 else if (bps == 16)
                     format = AL_FORMAT_STEREO16;
                 else
-                    prtlog_throw(FATAL, "can't play stereo " + std::to_string(bps) + " sound.");
+                    prtlog_throw(FX_FATAL, "can't play stereo " + std::to_string(bps) + " sound.");
             }
             else
-                prtlog_throw(FATAL, "can't play audio with " + std::to_string(n_ch) + " channels");
+                prtlog_throw(FX_FATAL, "can't play audio with " + std::to_string(n_ch) + " channels");
         }
         else if (identifier == "data")
         {
             byte_size = chunk_size;
-            const uint8_t *data = &file[index];
+            const byte *data = &file[index];
             alBufferData(buffer, format, data, chunk_size, samp_rate);
             index += chunk_size;
         }

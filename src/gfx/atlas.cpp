@@ -61,7 +61,7 @@ shared<texture> atlas::accept(shared<image> image)
             bestScore = score, best = (int)i;
     }
     if (best == -1)
-        prtlog_throw(FATAL, "atlas is not big enough. please expand it.");
+        prtlog_throw(FX_FATAL, "atlas is not big enough. please expand it.");
 
     quad used = free_rects[best];
     int dx = used.x;

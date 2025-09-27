@@ -9,10 +9,10 @@ namespace flux
 
 enum log_type
 {
-    DEBUG = 0,
-    INFO = 1,
-    WARN = 2,
-    FATAL = 3
+    FX_DEBUG = 0,
+    FX_INFO = 1,
+    FX_WARN = 2,
+    FX_FATAL = 3
 };
 
 std::string __get_header(log_type type);

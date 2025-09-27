@@ -1,0 +1,5 @@
+$dst = "dlls"; New-Item -ItemType Directory -Force $dst
+Get-Content dll-list.txt | ForEach-Object {
+    Copy-Item "${root}\$_" $dst -ErrorAction SilentlyContinue
+}
+Write-Host "completed into $dst"

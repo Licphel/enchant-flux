@@ -46,7 +46,7 @@ brush::brush()
 shared<complex_buffer> brush::lock_buffer()
 {
     if (buffer.expired())
-        prtlog_throw(FATAL, "try to paint on an expired buffer.");
+        prtlog_throw(FX_FATAL, "try to paint on an expired buffer.");
     return buffer.lock();
 }
 
@@ -165,7 +165,8 @@ void brush::flush()
 
     // ignore empty-flushing.
     if (__is_in_mesh)
-        prtlog_throw(FATAL, "it seems that somewhere the brush is flushed in a mesh. the state cannot be consistent!");
+        prtlog_throw(FX_FATAL,
+                     "it seems that somewhere the brush is flushed in a mesh. the state cannot be consistent!");
 
     shared<shader_program> program_used;
     if (m_state.program != nullptr && m_state.program->__program_id != 0)
@@ -200,7 +201,7 @@ void brush::flush()
         m_state.callback_uniform(program_used);
 
     if (program_used->cached_uniforms.size() == 0)
-        prtlog_throw(FATAL, "please cache at lease a uniform u_proj.");
+        prtlog_throw(FX_FATAL, "please cache at lease a uniform u_proj.");
     else
         program_used->cached_uniforms[0].set(get_combined_transform());
 
@@ -234,7 +235,7 @@ void brush::flush()
         glDrawArrays(GL_TRIANGLES, 0, buf->vertex_count);
         break;
     default:
-        prtlog_throw(FATAL, "uknown graphics mode.");
+        prtlog_throw(FX_FATAL, "uknown graphics mode.");
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -399,7 +400,7 @@ void brush::draw_point(const vec2 &p)
 void brush::draw_oval(const quad &dst, int segs)
 {
     if (segs <= 1)
-        prtlog_throw(FATAL, "at least drawing an oval needs 2 segments.");
+        prtlog_throw(FX_FATAL, "at least drawing an oval needs 2 segments.");
 
     float x = dst.center_x();
     float y = dst.center_y();
@@ -420,7 +421,7 @@ void brush::draw_oval(const quad &dst, int segs)
 void brush::draw_oval_outline(const quad &dst, int segs)
 {
     if (segs <= 1)
-        prtlog_throw(FATAL, "at least drawing an oval needs 2 segments.");
+        prtlog_throw(FX_FATAL, "at least drawing an oval needs 2 segments.");
 
     float x = dst.center_x();
     float y = dst.center_y();

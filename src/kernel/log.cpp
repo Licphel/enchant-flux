@@ -9,16 +9,16 @@ std::string __get_header(log_type type)
     std::string header;
     switch (type)
     {
-    case DEBUG:
+    case FX_DEBUG:
         header = "[DEBUG] ";
         break;
-    case INFO:
+    case FX_INFO:
         header = "[INFO] ";
         break;
-    case WARN:
+    case FX_WARN:
         header = "[WARN] ";
         break;
-    case FATAL:
+    case FX_FATAL:
         header = "[FATAL] ";
         break;
     };

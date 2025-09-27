@@ -23,7 +23,7 @@ shared<image> load_image(const hpath &path)
     shared<image> img = std::make_shared<image>();
     img->pixels = stbi_load(path.absolute.c_str(), &img->width, &img->height, nullptr, 4);
     if (img->pixels == nullptr)
-        prtlog_throw(FATAL, "path not found: {}", path.absolute);
+        prtlog_throw(FX_FATAL, "path not found: {}", path.absolute);
     img->__is_from_stb = true;
     return img;
 }
@@ -94,7 +94,7 @@ shared<texture> cut_texture(shared<texture> tex, const quad &src)
 void bind_texture(int unit, shared<texture> tex)
 {
     if (unit == 0)
-        prtlog_throw(FATAL, "cannot bind to texture unit 0, since it is reserved.");
+        prtlog_throw(FX_FATAL, "cannot bind to texture unit 0, since it is reserved.");
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, tex->__texture_id);
 }

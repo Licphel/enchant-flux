@@ -2,7 +2,7 @@
 #include <cstring>
 #include <gfx/image.h>
 #include <gfx/brush.h>
-#include <gfx/buf.h>
+#include <gfx/cbuf.h>
 #include <memory>
 #include <vector>
 

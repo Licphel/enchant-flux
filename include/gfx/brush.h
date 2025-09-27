@@ -3,7 +3,7 @@
 #include <gfx/camera.h>
 #include <gfx/color.h>
 #include <gfx/toolkit.h>
-#include <gfx/buf.h>
+#include <gfx/cbuf.h>
 #include <math/mat.h>
 #include <math/vec.h>
 #include <stack>
@@ -45,11 +45,11 @@ struct brush
     shared<shader_program> __default_colored;
     shared<shader_program> __default_textured;
     weak<complex_buffer> buffer;
-    mesh* __mesh_root;
+    mesh *__mesh_root;
     bool __is_in_mesh = false;
     bool __clear_when_flush = true;
     bool __program_changed = true;
- 
+
     brush();
 
     shared<complex_buffer> lock_buffer();
@@ -73,7 +73,7 @@ struct brush
     void assert_texture(shared<texture> tex);
     void use(const camera &cam);
     void use(shared<shader_program> program);
-    void use(const graph_state& sts);
+    void use(const graph_state &sts);
 
     void draw_texture(shared<texture> tex, const quad &dst, const quad &src, brush_flag flag = FX_BFLAG_NO);
     void draw_texture(shared<texture> tex, const quad &dst, brush_flag flag = FX_BFLAG_NO);

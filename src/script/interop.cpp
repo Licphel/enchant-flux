@@ -21,11 +21,11 @@ struct dynvalue::_impl
 
 void __dump_jsval(JSValueConst val)
 {
-    prtlog(DEBUG, "====== value print ======");
+    prtlog(FX_DEBUG, "====== value print ======");
 
     if (JS_IsException(val) || JS_IsUndefined(val))
     {
-        prtlog(WARN, "value is undefined or an exception");
+        prtlog(FX_WARN, "value is undefined or an exception");
         return;
     }
 
@@ -34,11 +34,11 @@ void __dump_jsval(JSValueConst val)
 
     if (JS_GetOwnPropertyNames(ctx, &tab, &len, val, JS_GPN_STRING_MASK) < 0)
     {
-        prtlog(WARN, "failed to get own property names.");
+        prtlog(FX_WARN, "failed to get own property names.");
         return;
     }
 
-    prtlog(DEBUG, "detected {} properties.", len);
+    prtlog(FX_DEBUG, "detected {} properties.", len);
     for (uint32_t i = 0; i < len; ++i)
     {
         JSAtom atom = tab[i].atom;
@@ -48,7 +48,7 @@ void __dump_jsval(JSValueConst val)
 
         JSValue v = JS_GetProperty(ctx, val, atom);
         const char *valStr = JS_ToCString(ctx, v);
-        prtlog(DEBUG, "| - {} = {}", key, valStr ? valStr : "?");
+        prtlog(FX_DEBUG, "| - {} = {}", key, valStr ? valStr : "?");
         JS_FreeCString(ctx, valStr);
         JS_FreeValue(ctx, v);
         JS_FreeCString(ctx, key);
@@ -66,7 +66,7 @@ void __prterr()
         const char *stack_str = JS_ToCString(ctx, stack);
         if (stack_str)
         {
-            prtlog(FATAL, "[Interop] error stack: {}", stack_str);
+            prtlog(FX_FATAL, "[Interop] error stack: {}", stack_str);
             JS_FreeCString(ctx, stack_str);
         }
         JS_FreeValue(ctx, stack);
@@ -76,7 +76,7 @@ void __prterr()
     const char *utf8 = JS_ToCString(ctx, strVal);
     if (utf8)
     {
-        prtlog_throw(FATAL, "[Interop] error: {}", utf8);
+        prtlog_throw(FX_FATAL, "[Interop] error: {}", utf8);
         JS_FreeCString(ctx, utf8);
     }
 
@@ -212,7 +212,7 @@ dynvalue dynvalue::vcall(int argc, ...)
 {
     if (!JS_IsFunction(ctx, __p->rawv))
     {
-        prtlog_throw(FATAL, "[Interop] calling a non-function dynvalue.");
+        prtlog_throw(FX_FATAL, "[Interop] calling a non-function dynvalue.");
         return __genv(JS_UNDEFINED, __IP_UNDEF);
     }
 
@@ -297,7 +297,7 @@ static JSValue js_print(JSContext *ctx, JSValueConst this_val, int argc, JSValue
         const char *str = JS_ToCString(ctx, argv[i]);
         if (str)
         {
-            prtlog(INFO, "{}", str);
+            prtlog(FX_INFO, "{}", str);
             JS_FreeCString(ctx, str);
         }
     }

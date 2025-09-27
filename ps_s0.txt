@@ -1,0 +1,18 @@
+$exe  = "enchant.exe"
+$root = "C:\msys64\mingw64\bin"
+$list = & "${root}\objdump.exe" -p $exe |
+        Where-Object { $_ -match 'DLL Name:\s+(\S+\.dll)' } |
+        ForEach-Object { $Matches[1] }
+
+$list = $list | Sort -Unique
+$new  = $list
+do {
+    $new = $new | ForEach-Object {
+        & "${root}\objdump.exe" -p "${root}\$_" 2>$null |
+            Where-Object { $_ -match 'DLL Name:\s+(\S+\.dll)' } |
+            ForEach-Object { $Matches[1] }
+    } | Sort -Unique | Where-Object { $_ -notin $list }
+    $list += $new
+} while ($new)
+
+$list | Sort -Unique | Set-Content dll-list.txt

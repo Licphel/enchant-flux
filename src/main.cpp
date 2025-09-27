@@ -6,8 +6,10 @@
 #include <gfx/atlas.h>
 #include <gfx/mesh.h>
 #include <gfx/font.h>
-#include <kernel/bino.h>
+#include <kernel/bin.h>
 #include <script/interop.h>
+#include <kernel/buf.h>
+#include <kernel/bio.h>
 
 using namespace flux;
 
@@ -17,14 +19,25 @@ shared<font> fnt;
 
 int main(int argc, char *argv[])
 {
-    auto hp = open_local("script/main.js");
-    auto str = read_str(hp);
+    binary_map map;
+    binary_map map1;
+    binary_array arr;
+    arr.push(123);
+    arr.push(byte_buf({0, 0, 1, 1, 3, 4}));
+    map1["k"] = 123.128;
 
-    ip_init();
-    dynvalue dv = dynvalue::veval(hp.absolute, str);
-    dynvalue fn = dynvalue::vgval("m");
-    dynvalue vs = dynvalue::vstr("ok, from c++!");
-    fn.vcall(1, vs);
+    map["a0"] = "hello bin";
+    map["n"] = map1;
+    map["a"] = arr;
+
+    bio_write(map, open_local("test.bin"));
+    map = bio_read(open_local("test.bin"));
+
+    double a = binary_map(map["n"])["k"];
+    byte_buf buf = binary_array(map["a"])[1];
+
+    prtlog(FX_INFO, map["a0"]);
+    prtlog(FX_INFO, std::to_string(a));
 
     tk_make_handle();
     tk_title("Enchant Flux");
@@ -45,7 +58,7 @@ int main(int argc, char *argv[])
     tk_hook_event_tick([](double delta) {
         tk_title(fmt::format("Enchant Flux | tps :{} fps :{}", tk_real_tps(), tk_real_fps()));
         if (tk_key_press(KEY_G))
-            prtlog(INFO, "HI!");
+            prtlog(FX_INFO, "HI!");
     });
     tk_hook_event_render([](brush *brush, double partial) {
         brush->clear({0, 0, 0, 1});
@@ -67,7 +80,7 @@ int main(int argc, char *argv[])
         brush->cl_norm();
 
         if (tk_key_press(KEY_F))
-            prtlog(INFO, "HI!");
+            prtlog(FX_INFO, "HI!");
     });
 
     au_make_device();

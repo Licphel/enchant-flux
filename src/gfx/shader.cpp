@@ -101,7 +101,7 @@ static int __build_shader_part(std::string source, GLenum type)
     int id = glCreateShader(type);
 
     if (id == 0)
-        prtlog_throw(FATAL, "Fail to create shader.");
+        prtlog_throw(FX_FATAL, "Fail to create shader.");
 
     const char *src = source.c_str();
     GLint len = static_cast<GLint>(source.size());
@@ -116,7 +116,7 @@ static int __build_shader_part(std::string source, GLenum type)
         char log[512];
         glGetShaderInfoLog(id, sizeof(log), nullptr, log);
         glDeleteShader(id);
-        prtlog_throw(FATAL, "glsl compile error: {}", std::string(log));
+        prtlog_throw(FX_FATAL, "glsl compile error: {}", std::string(log));
     }
 
     return id;

@@ -85,7 +85,7 @@ int tk_real_tps()
 void tk_make_handle()
 {
     if (!glfwInit())
-        prtlog_throw(FATAL, "glfw cannot initialize.");
+        prtlog_throw(FX_FATAL, "glfw cannot initialize.");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -98,13 +98,13 @@ void tk_make_handle()
     if (window == NULL)
     {
         glfwTerminate();
-        prtlog_throw(FATAL, "glfw make window failed.");
+        prtlog_throw(FX_FATAL, "glfw make window failed.");
     }
 
     glfwMakeContextCurrent(window);
 
     if (glewInit() != GLEW_OK)
-        prtlog_throw(FATAL, "glew cannot initialize.");
+        prtlog_throw(FX_FATAL, "glew cannot initialize.");
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *, int nw, int nh) {
         for (auto e : event_resize)
@@ -299,7 +299,7 @@ void tk_lifecycle(int fps, int tps, bool vsync)
     }
     catch (std::exception &e)
     {
-        prtlog(FATAL, "fatal error occurred: {}", e.what());
+        prtlog(FX_FATAL, "fatal error occurred: {}", e.what());
         // re-throw for debugging & stack trace.
         throw e;
     }
