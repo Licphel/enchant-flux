@@ -1,10 +1,11 @@
 #pragma once
 #include <gfx/image.h>
 #include <iostream>
-#include <kernel/hio.h>
-#include <math/vec.h>
+#include <core/hio.h>
+#include <core/math.h>
+#include <functional>
 
-namespace flux
+namespace flux::gfx
 {
 
 #define KEY_SPACE 32
@@ -183,18 +184,19 @@ void tk_lifecycle(int fps, int tps, bool vsync);
 void tk_swap_buffers();
 bool tk_poll_events();
 
-void tk_hook_event_tick(void (*callback)(double delta));
-void tk_hook_event_render(void (*callback)(brush *brush, double partial));
-void tk_hook_event_dispose(void (*callback)());
-void tk_hook_event_resize(void (*callback)(int w, int h));
-void tk_hook_mouse_state(void (*callback)(int button, int action, int mods));
-void tk_hook_cursor_pos(void (*callback)(double x, double y));
-void tk_hook_key_state(void (*callback)(int button, int scancode, int action, int mods));
+void tk_hook_event_tick(std::function<void(double delta)> callback);
+void tk_hook_event_render(std::function<void(brush *brush, double partial)> callback);
+void tk_hook_event_dispose(std::function<void()> callback);
+void tk_hook_event_resize(std::function<void(int w, int h)> callback);
+void tk_hook_mouse_state(std::function<void(int button, int action, int mods)> callback);
+void tk_hook_cursor_pos(std::function<void(double x, double y)> callback);
+void tk_hook_key_state(std::function<void(int button, int scancode, int action, int mods)> callback);
 
 bool tk_key_held(int key, int mod = MOD_ANY);
 bool tk_key_press(int key, int mod = MOD_ANY);
 vec2 tk_get_cursor();
 double tk_get_scroll();
 int tk_get_scroll_towards();
+std::string tk_consume_chars();
 
-} // namespace flux
+} // namespace flux::gfx

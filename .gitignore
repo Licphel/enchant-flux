@@ -1,6 +1,7 @@
 # Folders
 /build
 /bundle_lib
+/dlls
 
 # Prerequisites
 *.d

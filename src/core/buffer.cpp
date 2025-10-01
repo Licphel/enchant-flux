@@ -1,4 +1,4 @@
-#include <kernel/buf.h>
+#include <core/buffer.h>
 
 namespace flux
 {

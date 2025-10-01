@@ -1,5 +1,5 @@
-#include <kernel/hio.h>
-#include <kernel/log.h>
+#include <core/hio.h>
+#include <core/log.h>
 
 #define BROTLI_IMPLEMENTATION
 #include <brotli/encode.h>
@@ -8,47 +8,47 @@
 namespace flux
 {
 
-hpath open(const std::string &name)
+hio_path hio_open(const std::string &name)
 {
-    return hpath(name);
+    return hio_path(name);
 }
 
-hpath open_local(const std::string &name)
+hio_path hio_open_local(const std::string &name)
 {
-    return execution_path() / name;
+    return hio_execution_path() / name;
 }
 
-hpath parent(const hpath &path)
+hio_path hio_parent(const hio_path &path)
 {
     return {path.__npath.parent_path().string()};
 }
 
-void del(const hpath &path)
+void hio_del(const hio_path &path)
 {
     fs::remove(path.__npath);
 }
 
-void rename(const hpath &path, const std::string &name)
+void hio_rename(const hio_path &path, const std::string &name)
 {
     fs::rename(path.__npath, name);
 }
 
-bool exists(const hpath &path)
+bool hio_exists(const hio_path &path)
 {
     return fs::exists(path.__npath);
 }
 
-void mkdirs(const hpath &path)
+void hio_mkdirs(const hio_path &path)
 {
-    fs::create_directories(judge(path) == FX_DIR ? path.__npath : parent(path).__npath);
-    if (judge(path) == FX_FILE)
+    fs::create_directories(hio_judge(path) == FX_DIR ? path.__npath : hio_parent(path).__npath);
+    if (hio_judge(path) == FX_FILE)
     {
         std::ofstream stream(path.__npath);
         stream.close();
     }
 }
 
-hpath_type judge(const hpath &path)
+hpath_type hio_judge(const hio_path &path)
 {
     if (fs::is_directory(path.__npath))
         return FX_DIR;
@@ -57,42 +57,42 @@ hpath_type judge(const hpath &path)
     return FX_UNKNOWN;
 }
 
-std::vector<hpath> sub_dirs(const hpath &path)
+std::vector<hio_path> hio_sub_dirs(const hio_path &path)
 {
-    std::vector<hpath> paths;
+    std::vector<hio_path> paths;
     for (auto k : fs::directory_iterator(path.__npath))
     {
         if (k.is_directory())
-            paths.push_back(hpath(k.path().string()));
+            paths.push_back(hio_path(k.path().string()));
     }
     return paths;
 }
 
-std::vector<hpath> sub_files(const hpath &path)
+std::vector<hio_path> hio_sub_files(const hio_path &path)
 {
-    std::vector<hpath> paths;
+    std::vector<hio_path> paths;
     for (auto k : fs::directory_iterator(path.__npath))
     {
         if (k.is_regular_file())
-            paths.push_back(hpath(k.path().string()));
+            paths.push_back(hio_path(k.path().string()));
     }
     return paths;
 }
 
-std::vector<hpath> recurse_files(const hpath &path)
+std::vector<hio_path> hio_recurse_files(const hio_path &path)
 {
-    std::vector<hpath> paths;
+    std::vector<hio_path> paths;
     for (auto k : fs::recursive_directory_iterator(path.__npath))
     {
         if (k.is_regular_file())
-            paths.push_back(hpath(k.path().string()));
+            paths.push_back(hio_path(k.path().string()));
     }
     return paths;
 }
 
-hpath execution_path()
+hio_path hio_execution_path()
 {
-    return hpath(fs::current_path().string()) / "run";
+    return hio_path(fs::current_path().string()) / "run";
 }
 
 static std::vector<byte> brotli_compress(const std::vector<byte> &src, int quality)
@@ -138,7 +138,7 @@ static std::vector<byte> brotli_decompress(const std::vector<byte> &src)
     return dst;
 }
 
-std::vector<byte> read_bytes(const hpath &path, compression_level clvl)
+std::vector<byte> hio_read_bytes(const hio_path &path, compression_level clvl)
 {
     std::ifstream file(path.__npath, std::ios::binary | std::ios::ate);
     if (!file)
@@ -153,52 +153,58 @@ std::vector<byte> read_bytes(const hpath &path, compression_level clvl)
     if (clvl == FX_COMP_RAW_READ)
         return raw;
 
-    std::vector<byte> dec = brotli_decompress(raw);
-    if (dec.empty() && !raw.empty())
-        return raw;
-    return dec;
+    return hio_decompress(raw);
 }
 
-void write_bytes(const hpath &path, const std::vector<byte> &data, compression_level clvl)
+void hio_write_bytes(const hio_path &path, const std::vector<byte> &data, compression_level clvl)
 {
-    if (!exists(path))
-        mkdirs(path);
-
-    std::vector<byte> out;
-    switch (clvl)
-    {
-    case FX_COMP_NO:
-        out = data;
-        break;
-    case FX_COMP_FASTEST:
-        out = brotli_compress(data, 1);
-        break;
-    case FX_COMP_OPTIMAL:
-        out = brotli_compress(data, 6);
-        break;
-    case FX_COMP_SMALLEST:
-        out = brotli_compress(data, 11);
-        break;
-    default:
-        prtlog_throw(FX_FATAL, "unsupported compression level {}", (int)clvl);
-    }
-
+    if (!hio_exists(path))
+        hio_mkdirs(path);
+    auto out = hio_compress(data, clvl);
     std::ofstream file(path.__npath, std::ios::binary);
     if (!file)
         prtlog_throw(FX_FATAL, "cannot open {} for write", path.absolute);
     file.write(reinterpret_cast<const char *>(out.data()), out.size());
 }
 
-std::string read_str(const hpath &path)
+std::string hio_read_str(const hio_path &path)
 {
-    auto raw = read_bytes(path);
+    auto raw = hio_read_bytes(path);
     return std::string(reinterpret_cast<const char *>(raw.data()), raw.size());
 }
 
-void write_str(const hpath &path, const std::string &text)
+void hio_write_str(const hio_path &path, const std::string &text)
 {
-    write_bytes(path, std::vector<byte>(reinterpret_cast<const byte *>(text.data()),
-                                        reinterpret_cast<const byte *>(text.data() + text.size())));
+    hio_write_bytes(path, std::vector<byte>(reinterpret_cast<const byte *>(text.data()),
+                                            reinterpret_cast<const byte *>(text.data() + text.size())));
+}
+
+std::vector<byte> hio_compress(std::vector<byte> buf, compression_level clvl)
+{
+    std::vector<byte> out;
+    switch (clvl)
+    {
+    case FX_COMP_NO:
+        out = buf;
+        break;
+    case FX_COMP_FASTEST:
+        out = brotli_compress(buf, 1);
+        break;
+    case FX_COMP_OPTIMAL:
+        out = brotli_compress(buf, 6);
+        break;
+    case FX_COMP_SMALLEST:
+        out = brotli_compress(buf, 11);
+        break;
+    default:
+        prtlog_throw(FX_FATAL, "unsupported compression level {}", (int)clvl);
+    }
+    return out;
+}
+
+std::vector<byte> hio_decompress(std::vector<byte> buf)
+{
+    return brotli_decompress(buf);
 }
 
 } // namespace flux

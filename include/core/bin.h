@@ -1,12 +1,13 @@
 #pragma once
-#include <kernel/def.h>
+#include <core/def.h>
 #include <string>
 #include <vector>
-#include <kernel/log.h>
-#include <kernel/hio.h>
+#include <core/log.h>
+#include <core/hio.h>
 #include <map>
 #include <any>
-#include <kernel/buf.h>
+#include <core/buffer.h>
+#include <variant>
 
 namespace flux
 {
@@ -125,7 +126,10 @@ struct binary_value
                 return static_cast<T>(std::any_cast<byte_buf>(__anyv));
             else
                 break;
+        default:
+            prtlog_throw(FX_FATAL, "not convertible.");
         }
+        prtlog_throw(FX_FATAL, "not convertible.");
     }
 };
 

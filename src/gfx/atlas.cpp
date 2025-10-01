@@ -1,12 +1,12 @@
 #include <gfx/atlas.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <algorithm>
 #include <vector>
-#include <math/quad.h>
+#include <core/math.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 struct atlas::_impl

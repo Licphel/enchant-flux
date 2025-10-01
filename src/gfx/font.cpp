@@ -1,12 +1,12 @@
 #include <gfx/font.h>
 #include <gfx/atlas.h>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <cuchar>
 #include <string>
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 
-namespace flux
+namespace flux::gfx
 {
 
 struct font::_impl
@@ -169,7 +169,7 @@ quad font::make_vtx(brush *brush, const std::string &u8_str, double x, double y,
 #endif
 }
 
-shared<font> ft_make_font(const hpath &path, double res_h, double pixel_h)
+shared<font> load_font(const hio_path &path, double res_h, double pixel_h)
 {
     auto fptr = std::make_shared<font>();
 
@@ -191,4 +191,4 @@ shared<font> ft_make_font(const hpath &path, double res_h, double pixel_h)
     return fptr;
 }
 
-} // namespace flux
+} // namespace flux::gfx

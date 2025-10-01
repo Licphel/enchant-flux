@@ -1,12 +1,12 @@
 #include <gfx/image.h>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 image::~image()
@@ -18,7 +18,7 @@ image::~image()
     pixels = nullptr;
 }
 
-shared<image> load_image(const hpath &path)
+shared<image> load_image(const hio_path &path)
 {
     shared<image> img = std::make_shared<image>();
     img->pixels = stbi_load(path.absolute.c_str(), &img->width, &img->height, nullptr, 4);

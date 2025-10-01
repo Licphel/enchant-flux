@@ -1,9 +1,9 @@
 #pragma once
-#include <kernel/def.h>
-#include <math/vec.h>
-#include <kernel/hio.h>
+#include <core/def.h>
+#include <core/math.h>
+#include <core/hio.h>
 
-namespace flux
+namespace flux::aud
 {
 
 struct track
@@ -47,9 +47,9 @@ struct clip
     void operate(clip_op param);
 };
 
-void au_make_device();
-void au_end_make_device();
-shared<track> au_load_track(const hpath &path);
-shared<clip> au_make_clip(shared<track> track);
+void make_device();
+void end_make_device();
+shared<track> load_track(const hio_path &path);
+shared<clip> make_clip(shared<track> track);
 
 } // namespace flux

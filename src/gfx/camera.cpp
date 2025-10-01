@@ -1,7 +1,7 @@
 #include <gfx/camera.h>
 #include <gfx/toolkit.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 void camera::apply()

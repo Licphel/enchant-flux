@@ -1,4 +1,4 @@
-#include <kernel/log.h>
+#include <core/log.h>
 #include <vector>
 
 namespace flux

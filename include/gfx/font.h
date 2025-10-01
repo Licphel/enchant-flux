@@ -1,11 +1,11 @@
 #pragma once
-#include <math/vec.h>
-#include <math/quad.h>
+#include <core/math.h>
+#include <core/math.h>
 #include <gfx/image.h>
 #include <gfx/brush.h>
 #include <map>
 
-namespace flux
+namespace flux::gfx
 {
 
 enum font_render_align
@@ -61,6 +61,6 @@ struct font
     quad make_vtx(brush *brush, const std::string &str, double x, double y, double scale = 1, double max_w = INT_MAX);
 };
 
-shared<font> ft_make_font(const hpath &path, double res_h, double pixel_h);
+shared<font> load_font(const hio_path &path, double res_h, double pixel_h);
 
-} // namespace flux
+} // namespace flux::gfx

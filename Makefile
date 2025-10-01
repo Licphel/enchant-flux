@@ -1,5 +1,6 @@
 CXX         := ccache g++
 CXXFLAGS    := -std=c++17 -Wall -Wextra -g -fdiagnostics-color=always
+CXXFLAGS 	+= -Wno-sign-compare -Wno-narrowing -Wno-conditional-uninitialized
 LDFLAGS     += -pthread -mconsole
 MAKEFLAGS 	+= -j$(shell nproc)
 SRC			:= src

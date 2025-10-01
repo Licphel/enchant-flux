@@ -2,7 +2,7 @@
 #include <gl/glew.h>
 #include <gl/gl.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 mesh::mesh()

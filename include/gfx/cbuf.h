@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-namespace flux
+namespace flux::gfx
 {
 
 enum graph_mode

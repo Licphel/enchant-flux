@@ -1,9 +1,9 @@
 #pragma once
 #include <algorithm>
 #include <iostream>
-#include <kernel/def.h>
+#include <core/def.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 struct color

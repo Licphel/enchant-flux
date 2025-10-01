@@ -1,11 +1,11 @@
 #pragma once
 #include <gfx/color.h>
-#include <math/mat.h>
-#include <math/quad.h>
-#include <math/vec.h>
+#include <core/math.h>
+#include <core/math.h>
+#include <core/math.h>
 #include <memory>
 
-namespace flux
+namespace flux::gfx
 {
 
 enum transform_space

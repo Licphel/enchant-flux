@@ -3,7 +3,7 @@
 #include <gl/gl.h>
 #include <memory>
 
-namespace flux
+namespace flux::gfx
 {
 
 void complex_buffer::end_quad()

@@ -1,10 +1,10 @@
 #include <gfx/shader.h>
-#include <kernel/def.h>
+#include <core/def.h>
 #include <memory>
 #include <gl/glew.h>
-#include <kernel/log.h>
+#include <core/log.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 void shader_attrib::layout(shader_vertex_data_type size, int components, int stride, int offset, bool normalize)

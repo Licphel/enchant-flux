@@ -1,8 +1,8 @@
 #pragma once
-#include <kernel/def.h>
+#include <core/def.h>
 #include <gfx/image.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 struct atlas

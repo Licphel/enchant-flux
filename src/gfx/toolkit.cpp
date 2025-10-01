@@ -8,24 +8,24 @@
 #include <glfw/glfw3.h>
 #include <al/alc.h>
 #include <al/al.h>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <thread>
 #include <vector>
 #include <gfx/mesh.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 GLFWwindow *window;
 
-std::vector<void (*)(double delta)> event_tick;
-std::vector<void (*)(brush *brush, double partial)> event_render;
-std::vector<void (*)()> event_dispose;
-std::vector<void (*)(int w, int h)> event_resize;
-std::vector<void (*)(int button, int action, int mods)> event_mouse_state;
-std::vector<void (*)(double x, double y)> event_cursor_pos;
-std::vector<void (*)(double x, double y)> event_mouse_scroll;
-std::vector<void (*)(int button, int scancode, int action, int mods)> event_key_state;
+std::vector<std::function<void(double delta)>> event_tick;
+std::vector<std::function<void(brush *brush, double partial)>> event_render;
+std::vector<std::function<void()>> event_dispose;
+std::vector<std::function<void(int w, int h)>> event_resize;
+std::vector<std::function<void(int button, int action, int mods)>> event_mouse_state;
+std::vector<std::function<void(double x, double y)>> event_cursor_pos;
+std::vector<std::function<void(double x, double y)>> event_mouse_scroll;
+std::vector<std::function<void(int button, int scancode, int action, int mods)>> event_key_state;
 
 long keydown[512];
 long keydown_render[512];
@@ -38,6 +38,7 @@ int lf_ticks, lf_render_ticks;
 double lf_delta, lf_partial;
 int rfps, rtps;
 bool __cur_in_tick;
+std::string __char_seq;
 
 // global gfx usage
 shared<mesh> direct_mesh = nullptr;
@@ -142,6 +143,10 @@ void tk_make_handle()
         keydown_render[button] = lf_render_ticks;
         keyact[button] = action;
         keymod[button] = mods;
+    });
+    glfwSetCharCallback(window, [](GLFWwindow *, unsigned int codepoint) {
+        general_char ch = (general_char)codepoint;
+        __char_seq += ch;
     });
 
     // set opengl caps
@@ -323,37 +328,37 @@ bool tk_poll_events()
     return v;
 }
 
-void tk_hook_event_tick(void (*callback)(double delta))
+void tk_hook_event_tick(std::function<void(double delta)> callback)
 {
     event_tick.push_back(callback);
 }
 
-void tk_hook_event_render(void (*callback)(brush *brush, double partial))
+void tk_hook_event_render(std::function<void(brush *brush, double partial)> callback)
 {
     event_render.push_back(callback);
 }
 
-void tk_hook_event_dispose(void (*callback)())
+void tk_hook_event_dispose(std::function<void()> callback)
 {
     event_dispose.push_back(callback);
 }
 
-void tk_hook_event_resize(void (*callback)(int w, int h))
+void tk_hook_event_resize(std::function<void(int w, int h)> callback)
 {
     event_resize.push_back(callback);
 }
 
-void tk_hook_mouse_state(void (*callback)(int button, int action, int mods))
+void tk_hook_mouse_state(std::function<void(int button, int action, int mods)> callback)
 {
     event_mouse_state.push_back(callback);
 }
 
-void tk_hook_cursor_pos(void (*callback)(double x, double y))
+void tk_hook_cursor_pos(std::function<void(double x, double y)> callback)
 {
     event_cursor_pos.push_back(callback);
 }
 
-void tk_hook_key_state(void (*callback)(int button, int scancode, int action, int mods))
+void tk_hook_key_state(std::function<void(int button, int scancode, int action, int mods)> callback)
 {
     event_key_state.push_back(callback);
 }
@@ -387,6 +392,13 @@ int tk_get_scroll_towards()
     if (mscy < -10E-4)
         return SCROLL_DOWN;
     return SCROLL_NO;
+}
+
+std::string tk_consume_chars()
+{
+    std::string cpy = __char_seq;
+    __char_seq.clear();
+    return cpy;
 }
 
 } // namespace flux

@@ -5,8 +5,8 @@
 #include <string>
 #include <type_traits>
 #include <stdexcept>
-#include <kernel/def.h>
-#include <kernel/log.h>
+#include <core/def.h>
+#include <core/log.h>
 
 namespace flux
 {
@@ -68,7 +68,7 @@ struct byte_buf
     }
 
     void write_bytes(const void *src, size_t len);
-    void write_byte_buf(const byte_buf& buf);
+    void write_byte_buf(const byte_buf &buf);
     void write_string(const std::string &str);
 
     template <typename T> typename std::enable_if<std::is_arithmetic<T>::value, T>::type read()

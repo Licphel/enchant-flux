@@ -1,9 +1,9 @@
 #pragma once
-#include <kernel/hio.h>
-#include <kernel/def.h>
-#include <math/quad.h>
+#include <core/hio.h>
+#include <core/def.h>
+#include <core/math.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 struct image
@@ -35,7 +35,7 @@ struct texture
     ~texture();
 };
 
-shared<image> load_image(const hpath &path);
+shared<image> load_image(const hio_path &path);
 shared<image> make_image(int width, int height, byte *data);
 shared<texture> make_texture(shared<image> img);
 void lazylink_texture_data(shared<texture> tex, shared<image> img);

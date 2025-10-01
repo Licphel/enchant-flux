@@ -3,10 +3,12 @@
 #include <al/al.h>
 #include <gfx/toolkit.h>
 #include <vector>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <memory>
 
-namespace flux
+using namespace flux::gfx;
+
+namespace flux::aud
 {
 
 track::~track()
@@ -85,7 +87,7 @@ void __process_tracks()
     }
 }
 
-void au_make_device()
+void make_device()
 {
     // init openal
     al_dev = alcOpenDevice(nullptr);
@@ -98,14 +100,14 @@ void au_make_device()
     });
 }
 
-void au_end_make_device()
+void end_make_device()
 {
     // nothing
 }
 
-shared<track> au_load_track(const hpath &path)
+shared<track> load_track(const hio_path &path)
 {
-    auto file = read_bytes(path);
+    auto file = hio_read_bytes(path);
 
     size_t index = 0;
 
@@ -203,7 +205,7 @@ shared<track> au_load_track(const hpath &path)
     return ptr;
 }
 
-shared<clip> au_make_clip(shared<track> track)
+shared<clip> make_clip(shared<track> track)
 {
     unsigned int id;
     alGenSources(1, &id);
@@ -215,4 +217,4 @@ shared<clip> au_make_clip(shared<track> track)
     return ptr;
 }
 
-} // namespace flux
+} // namespace flux::aud

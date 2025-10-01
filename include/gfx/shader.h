@@ -1,11 +1,11 @@
 #pragma once
-#include <kernel/hio.h>
+#include <core/hio.h>
 #include <string>
 #include <gfx/color.h>
-#include <math/vec.h>
-#include <math/mat.h>
+#include <core/math.h>
+#include <core/math.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 enum shader_vertex_data_type

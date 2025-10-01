@@ -3,10 +3,10 @@
 #include <gl/glew.h>
 #include <gl/gl.h>
 #include <memory>
-#include <kernel/log.h>
+#include <core/log.h>
 #include <gfx/mesh.h>
 
-namespace flux
+namespace flux::gfx
 {
 
 static uint16_t __to_half(float f)

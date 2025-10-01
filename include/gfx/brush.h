@@ -4,11 +4,11 @@
 #include <gfx/color.h>
 #include <gfx/toolkit.h>
 #include <gfx/cbuf.h>
-#include <math/mat.h>
-#include <math/vec.h>
+#include <core/math.h>
+#include <core/math.h>
 #include <stack>
 
-namespace flux
+namespace flux::gfx
 {
 
 enum brush_flag
