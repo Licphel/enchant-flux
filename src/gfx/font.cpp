@@ -29,7 +29,7 @@ font::~font()
     FT_Done_FreeType(__p->lib_ptr);
 }
 
-shared<texture> __flush_codemap(font::_impl *__p, general_char ch, shared<image> img)
+shared<texture> __flush_codemap(font::_impl *__p, u32_char ch, shared<image> img)
 {
     int code = (int)floor(static_cast<int>(ch) / 256.0);
     if (__p->codemap.find(code) == __p->codemap.end())
@@ -44,7 +44,7 @@ shared<texture> __flush_codemap(font::_impl *__p, general_char ch, shared<image>
     return tptr;
 }
 
-glyph font::make_glyph(general_char ch)
+glyph font::make_glyph(u32_char ch)
 {
     auto face = __p->face_ptr;
     unsigned int idx = FT_Get_Char_Index(face, ch);
@@ -88,18 +88,36 @@ static std::u32string to_u32(std::string_view u8)
 {
     std::u32string out;
     out.reserve(u8.size());
-    for (auto it = u8.begin(); it != u8.end();)
+    auto it = u8.begin(), last = u8.end();
+
+    auto need = [&](std::ptrdiff_t n) -> bool { return std::distance(it, last) >= n; };
+
+    while (it != last)
     {
-        general_char cp = 0;
         unsigned char c = *it++;
+        u32_char cp;
         if (c < 0x80)
             cp = c;
         else if ((c & 0xE0) == 0xC0)
+        {
+            if (!need(1))
+                return {};
             cp = (c & 0x1F) << 6 | (*it++ & 0x3F);
+        }
         else if ((c & 0xF0) == 0xE0)
+        {
+            if (!need(2))
+                return {};
             cp = (c & 0x0F) << 12 | (*it++ & 0x3F) << 6 | (*it++ & 0x3F);
+        }
         else if ((c & 0xF8) == 0xF0)
+        {
+            if (!need(3))
+                return {};
             cp = (c & 0x07) << 18 | (*it++ & 0x3F) << 12 | (*it++ & 0x3F) << 6 | (*it++ & 0x3F);
+        }
+        else
+            return {};
         out.push_back(cp);
     }
     return out;
@@ -123,7 +141,7 @@ quad font::make_vtx(brush *brush, const std::string &u8_str, double x, double y,
 
     for (int i = 0; i < str.length(); i++)
     {
-        general_char ch = str[i];
+        u32_char ch = str[i];
 
         if (ch == '\n' || endln)
         {

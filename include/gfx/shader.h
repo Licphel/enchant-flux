@@ -20,9 +20,8 @@ enum shader_vertex_data_type
 struct shader_attrib
 {
     unsigned int __attrib_id = 0;
-    shader_attrib(unsigned int id) : __attrib_id(id)
-    {
-    }
+
+    shader_attrib(unsigned int id);
 
     void layout(shader_vertex_data_type size, int components, int stride, int offset, bool normalize = false);
 };
@@ -30,9 +29,8 @@ struct shader_attrib
 struct shader_uniform
 {
     unsigned int __uniform_id = 0;
-    shader_uniform(unsigned int id) : __uniform_id(id)
-    {
-    }
+    
+    shader_uniform(unsigned int id);
 
     void set_texture_unit(int unit);
     void seti(int v);

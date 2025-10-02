@@ -3,7 +3,7 @@
 #include <core/math.h>
 #include <core/hio.h>
 
-namespace flux::aud
+namespace flux::au
 {
 
 enum device_option

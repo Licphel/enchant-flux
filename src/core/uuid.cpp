@@ -5,6 +5,34 @@
 namespace flux
 {
 
+bool uuid::operator==(const uuid &other) const
+{
+    if (__hash != other.__hash)
+        return false;
+    return bytes == other.bytes;
+}
+
+bool uuid::operator<(const uuid &other) const
+{
+    return bytes < other.bytes;
+}
+
+uuid::operator std::string() const
+{
+    std::string result;
+    result.reserve(32);
+
+    const char hex_chars[] = "0123456789abcdef";
+
+    for (byte byte : bytes)
+    {
+        result += hex_chars[(byte >> 4) & 0x0F];
+        result += hex_chars[byte & 0x0F];
+    }
+
+    return result;
+}
+
 uuid uuid_null()
 {
     return uuid();
@@ -27,7 +55,8 @@ uuid uuid_generate()
     for (int i = 8; i < 16; i++)
         u.bytes[i] = dis(gen);
 
-    u.__hash = std::hash<std::string_view>{}(std::string_view(reinterpret_cast<const char *>(u.bytes.data()), u.bytes.size()));
+    u.__hash =
+        std::hash<std::string_view>{}(std::string_view(reinterpret_cast<const char *>(u.bytes.data()), u.bytes.size()));
 
     return u;
 }

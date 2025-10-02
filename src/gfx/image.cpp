@@ -9,6 +9,12 @@
 namespace flux::gfx
 {
 
+image::image() = default;
+
+image::image(byte *data, int w, int h) : width(w), height(h), pixels(data)
+{
+}
+
 image::~image()
 {
     if (__is_from_stb)
@@ -99,4 +105,4 @@ void bind_texture(int unit, shared<texture> tex)
     glBindTexture(GL_TEXTURE_2D, tex->__texture_id);
 }
 
-} // namespace flux
+} // namespace flux::gfx

@@ -1,4 +1,4 @@
-#include <audio/aud.h>
+#include <audio/au.h>
 #include <al/alc.h>
 #include <al/al.h>
 #include <gfx/gfx.h>
@@ -8,7 +8,7 @@
 
 using namespace flux::gfx;
 
-namespace flux::aud
+namespace flux::au
 {
 
 track::~track()

@@ -12,10 +12,8 @@ struct image
     byte *pixels;
     /* unstable */ bool __is_from_stb = false;
 
-    image() = default;
-    image(byte *data, int w, int h) : width(w), height(h), pixels(data)
-    {
-    }
+    image();
+    image(byte *data, int w, int h);
     ~image();
 };
 

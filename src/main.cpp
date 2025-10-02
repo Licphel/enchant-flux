@@ -2,7 +2,7 @@
 #include <gfx/image.h>
 #include <gfx/gfx.h>
 #include <core/log.h>
-#include <audio/aud.h>
+#include <audio/au.h>
 #include <gfx/atlas.h>
 #include <gfx/mesh.h>
 #include <gfx/font.h>
@@ -18,7 +18,7 @@
 using namespace flux;
 using namespace flux::gfx;
 using namespace flux::net;
-using namespace flux::aud;
+using namespace flux::au;
 
 #define NET_TEST
 

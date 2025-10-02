@@ -12,37 +12,37 @@ void __write_primitive(byte_buf &buf, const binary_value &v)
 
     switch (v.type)
     {
-    case __BINCVT_BYTE:
+    case __BIN_CVT_BYTE:
         buf.write<byte>(v.cast<byte>());
         break;
-    case __BINCVT_SHORT:
+    case __BIN_CVT_SHORT:
         buf.write<short>(v.cast<short>());
         break;
-    case __BINCVT_INT:
+    case __BIN_CVT_INT:
         buf.write<int>(v.cast<int>());
         break;
-    case __BINCVT_LONG:
+    case __BIN_CVT_LONG:
         buf.write<long>(v.cast<long>());
         break;
-    case __BINCVT_FLOAT:
+    case __BIN_CVT_FLOAT:
         buf.write<float>(v.cast<float>());
         break;
-    case __BINCVT_DOUBLE:
+    case __BIN_CVT_DOUBLE:
         buf.write<double>(v.cast<double>());
         break;
-    case __BINCVT_STRING_C:
+    case __BIN_CVT_STRING_C:
         buf.write_string(v.cast<std::string>());
         break;
-    case __BINCVT_BOOL:
+    case __BIN_CVT_BOOL:
         buf.write<bool>(v.cast<bool>());
         break;
-    case __BINCVT_MAP:
+    case __BIN_CVT_MAP:
         __write_map(buf, v.cast<binary_map>());
         break;
-    case __BINCVT_ARRAY:
+    case __BIN_CVT_ARRAY:
         __write_array(buf, v.cast<binary_array>());
         break;
-    case __BINCVT_BUF:
+    case __BIN_CVT_BUF:
         buf.write_byte_buf(v.cast<byte_buf>());
         break;
     default:
@@ -61,7 +61,7 @@ void __write_map(byte_buf &buf, const binary_map &map)
         buf.write_string(str);
     }
 
-    buf.write<byte>(__BINCVT_EOF);
+    buf.write<byte>(__BIN_CVT_EOF);
 }
 
 void __write_array(byte_buf &buf, const binary_array &arr)
@@ -78,32 +78,32 @@ binary_value __read_primitive(byte_buf &buf)
 {
     byte id = buf.read<byte>();
 
-    if (id == __BINCVT_EOF)
-        return {__BINCVT_EOF, std::any(0)};
+    if (id == __BIN_CVT_EOF)
+        return {__BIN_CVT_EOF, std::any(0)};
 
     switch (id)
     {
-    case __BINCVT_BYTE:
+    case __BIN_CVT_BYTE:
         return binary_value::make(buf.read<byte>());
-    case __BINCVT_SHORT:
+    case __BIN_CVT_SHORT:
         return binary_value::make(buf.read<short>());
-    case __BINCVT_INT:
+    case __BIN_CVT_INT:
         return binary_value::make(buf.read<int>());
-    case __BINCVT_LONG:
+    case __BIN_CVT_LONG:
         return binary_value::make(buf.read<long>());
-    case __BINCVT_FLOAT:
+    case __BIN_CVT_FLOAT:
         return binary_value::make(buf.read<float>());
-    case __BINCVT_DOUBLE:
+    case __BIN_CVT_DOUBLE:
         return binary_value::make(buf.read<double>());
-    case __BINCVT_STRING_C:
+    case __BIN_CVT_STRING_C:
         return binary_value::make(buf.read_string());
-    case __BINCVT_BOOL:
+    case __BIN_CVT_BOOL:
         return binary_value::make(buf.read<bool>());
-    case __BINCVT_MAP:
+    case __BIN_CVT_MAP:
         return binary_value::make(__read_map(buf));
-    case __BINCVT_ARRAY:
+    case __BIN_CVT_ARRAY:
         return binary_value::make(__read_array(buf));
-    case __BINCVT_BUF:
+    case __BIN_CVT_BUF:
         return binary_value::make(buf.read_byte_buf());
     }
 
@@ -117,7 +117,7 @@ binary_map __read_map(byte_buf &buf)
     {
         binary_value bv = __read_primitive(buf);
 
-        if (bv.type == __BINCVT_EOF)
+        if (bv.type == __BIN_CVT_EOF)
             break;
 
         std::string str = buf.read_string();
@@ -432,7 +432,7 @@ binary_value __binparser::__p_map()
 binary_map bio_read_langd(const hio_path &path)
 {
     binary_value result = __binparser(hio_read_str(path)).__p();
-    if (result.type != __BINCVT_MAP)
+    if (result.type != __BIN_CVT_MAP)
         prtlog_throw(FX_FATAL, "binary root is not an object");
     return result.cast<binary_map>();
 }

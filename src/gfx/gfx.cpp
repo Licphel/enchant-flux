@@ -145,7 +145,7 @@ void tk_make_handle()
         keymod[button] = mods;
     });
     glfwSetCharCallback(window, [](GLFWwindow *, unsigned int codepoint) {
-        general_char ch = (general_char)codepoint;
+        u32_char ch = (u32_char)codepoint;
         __char_seq += ch;
     });
 

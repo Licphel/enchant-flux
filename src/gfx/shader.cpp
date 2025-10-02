@@ -8,6 +8,10 @@
 namespace flux::gfx
 {
 
+shader_attrib::shader_attrib(unsigned int id) : __attrib_id(id)
+{
+}
+
 void shader_attrib::layout(shader_vertex_data_type size, int components, int stride, int offset, bool normalize)
 {
     glEnableVertexAttribArray(__attrib_id);
@@ -31,6 +35,10 @@ void shader_attrib::layout(shader_vertex_data_type size, int components, int str
         break;
     }
     glVertexAttribPointer(__attrib_id, components, type, normalize, stride, reinterpret_cast<void *>(offset));
+}
+
+shader_uniform::shader_uniform(unsigned int id) : __uniform_id(id)
+{
 }
 
 void shader_uniform::set_texture_unit(int unit)

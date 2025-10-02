@@ -9,10 +9,8 @@ struct res_scope
 {
     std::string key;
 
-    res_scope() = default;
-    res_scope(const std::string &key) : key(key)
-    {
-    }
+    res_scope();
+    res_scope(const std::string &key);
 };
 
 struct res_id
@@ -22,29 +20,14 @@ struct res_id
     std::string concat;
     size_t __hash;
 
-    res_id() = default;
+    res_id();
     res_id(const std::string &cat);
     res_id(const res_scope &sc, const std::string &k);
-    res_id(const char ch_arr[]) : res_id(std::string(ch_arr))
-    {
-    }
+    res_id(const char ch_arr[]);
 
-    operator std::string() const
-    {
-        return concat;
-    }
-
-    bool operator ==(const res_id& other) const
-    {
-        if(other.__hash != __hash)
-            return false;
-        return other.concat == concat;
-    }
-
-    bool operator <(const res_id& other) const
-    {
-        return other.concat < concat;
-    }
+    operator std::string() const;
+    bool operator ==(const res_id& other) const;
+    bool operator <(const res_id& other) const;
 };
 
 } // namespace flux

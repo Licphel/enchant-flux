@@ -1,10 +1,10 @@
 #include <core/load.h>
 #include <gfx/image.h>
 #include <gfx/font.h>
-#include <audio/aud.h>
+#include <audio/au.h>
 
 using namespace flux::gfx;
-using namespace flux::aud;
+using namespace flux::au;
 
 namespace flux
 {

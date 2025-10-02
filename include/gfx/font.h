@@ -38,7 +38,7 @@ struct glyph
 
 struct font
 {
-    std::map<general_char, glyph> glyph_map;
+    std::map<u32_char, glyph> glyph_map;
     double f_height = 0;
     double f_lspc = 0;
     double f_ascend = 0;
@@ -50,14 +50,14 @@ struct font
     font();
     ~font();
 
-    glyph get_glyph(general_char ch)
+    glyph get_glyph(u32_char ch)
     {
         if (glyph_map.find(ch) == glyph_map.end())
             return glyph_map[ch] = make_glyph(ch);
         return glyph_map[ch];
     }
 
-    glyph make_glyph(general_char ch);
+    glyph make_glyph(u32_char ch);
     quad make_vtx(brush *brush, const std::string &str, double x, double y, double scale = 1, double max_w = INT_MAX);
 };
 

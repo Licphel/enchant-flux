@@ -15,39 +15,15 @@ struct hio_path
     std::string absolute;
     /* unstable */ fs::path __npath;
 
-    hio_path() = default;
+    hio_path();
+    hio_path(const std::string &name);
 
-    hio_path(const std::string &name) : absolute(name), __npath(fs::path(name))
-    {
-        __check();
-    }
+    void __check();
 
-    void __check()
-    {
-        for (size_t pos = 0; (pos = absolute.find('\\', pos)) != std::string::npos;)
-            absolute.replace(pos, 1, "/");
-    }
-
-    std::string file_name() const
-    {
-        return __npath.filename().string();
-    }
-
-    std::string file_format() const
-    {
-        return __npath.extension().string();
-    }
-
-    hio_path operator/(const std::string &name) const
-    {
-        bool append = absolute[absolute.length() - 1] != '/';
-        return hio_path(append ? absolute + '/' + name : absolute + name);
-    }
-
-    std::string operator-(const hio_path &path) const
-    {
-        return fs::relative(__npath, path.__npath).generic_string();
-    }
+    std::string file_name() const;
+    std::string file_format() const;
+    hio_path operator/(const std::string &name) const;
+    std::string operator-(const hio_path &path) const;
 };
 
 enum hpath_type

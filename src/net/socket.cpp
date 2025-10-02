@@ -191,6 +191,8 @@ struct socket::_impl
             else if (buf.read_pos() >= buf.capacity() / 2)
                 buf.compact();
 
+            // lock is necessary.
+            std::lock_guard<std::mutex> lk(mtx);
             rcv_packets.push_back(p);
         }
     }
@@ -353,11 +355,13 @@ struct socket::_impl
                 remote_send(make_packet<packet_2s_heartbeat>());
         }
 
+        // lock is necessary.
+        std::vector<shared<packet>> tmp;
+        
         std::lock_guard<std::mutex> lk(mtx);
+        tmp.swap(rcv_packets);
 
-        auto evs = rcv_packets;
-        rcv_packets.clear();
-        for (auto e : evs)
+        for (auto &e : tmp)
             e->perform(sk);
     }
 

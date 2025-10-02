@@ -59,6 +59,7 @@ struct byte_buf
     void reserve(size_t size);
     void resize(size_t size);
     void ensure_capacity(size_t needed);
+    void ensure_readable(size_t needed) const;
 
     template <typename T> typename std::enable_if<std::is_arithmetic<T>::value, void>::type write(T value)
     {
@@ -74,8 +75,7 @@ struct byte_buf
 
     template <typename T> typename std::enable_if<std::is_arithmetic<T>::value, T>::type read()
     {
-        if (__rpos + sizeof(T) > __wpos)
-            prtlog_throw(FX_FATAL, "byte buf read out of range!");
+        ensure_readable(sizeof(T));
         T value;
         std::memcpy(&value, __data.data() + __rpos, sizeof(T));
         __rpos += sizeof(T);
@@ -88,8 +88,7 @@ struct byte_buf
 
     template <typename T> T peek() const
     {
-        if (__rpos + sizeof(T) > __wpos)
-            prtlog_throw(FX_FATAL, "byte buf read out of range!");
+        ensure_readable(sizeof(T));
         T value;
         std::memcpy(&value, __data.data() + __rpos, sizeof(T));
         return to_native_endian(value);
@@ -100,7 +99,9 @@ struct byte_buf
     void set_write_pos(size_t pos);
     size_t read_pos() const;
     size_t write_pos() const;
+    // copy the data before write position to a vector.
     std::vector<byte> to_vector() const;
+    // read from current read position and advance it by len.
     std::vector<byte> read_advance(int len);
     void rewind();
     void compact();

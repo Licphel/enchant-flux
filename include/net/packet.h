@@ -6,6 +6,8 @@
 #include <functional>
 #include <core/registry.h>
 
+#define FX_USE_BUILTIN_PACKETS
+
 namespace flux::net
 {
 
@@ -17,7 +19,6 @@ struct packet_context
 struct packet : std::enable_shared_from_this<packet>
 {
     uuid sender;
-    bool invalid = false;
 
     virtual ~packet() = default;
     virtual void read(byte_buf &buf) = 0;
@@ -38,6 +39,25 @@ struct packet : std::enable_shared_from_this<packet>
     void send_to_remotes();
 };
 
+template <typename T, typename... Args> shared<packet> make_packet(Args &&...args)
+{
+    static_assert(std::is_base_of_v<packet, T>, "make a non-packet object.");
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
+int __pid_counter();
+std::map<int, std::function<shared<packet>()>> &__pmap();
+std::map<size_t, int> &__pmap_rev();
+
+template <typename T> void register_packet()
+{
+    const auto &tid = typeid(T);
+    int pid = __pid_counter();
+    __pmap()[pid] = []() { return make_packet<T>(); };
+    __pmap_rev()[tid.hash_code()] = pid;
+}
+
+#ifdef FX_USE_BUILTIN_PACKETS
 struct packet_2s_heartbeat : packet
 {
     packet_2s_heartbeat() = default;
@@ -80,23 +100,6 @@ struct packet_dummy : packet
         prtlog(FX_DEBUG, str);
     }
 };
-
-template <typename T, typename... Args> shared<packet> make_packet(Args &&...args)
-{
-    static_assert(std::is_base_of_v<packet, T>, "make a non-packet object.");
-    return std::make_unique<T>(std::forward<Args>(args)...);
-}
-
-int __pid_counter();
-std::map<int, std::function<shared<packet>()>> &__pmap();
-std::map<size_t, int> &__pmap_rev();
-
-template <typename T> void register_packet()
-{
-    const auto &tid = typeid(T);
-    int pid = __pid_counter();
-    __pmap()[pid] = []() { return make_packet<T>(); };
-    __pmap_rev()[tid.hash_code()] = pid;
-}
+#endif
 
 } // namespace flux::net

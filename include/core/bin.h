@@ -12,21 +12,21 @@
 namespace flux
 {
 
-enum __bincvt_typem
+enum __bin_cvt_enum
 {
-    __BINCVT_BYTE,
-    __BINCVT_SHORT,
-    __BINCVT_INT,
-    __BINCVT_LONG,
-    __BINCVT_FLOAT,
-    __BINCVT_DOUBLE,
-    __BINCVT_STRING_C,
-    __BINCVT_BOOL,
-    __BINCVT_MAP,
-    __BINCVT_ARRAY,
-    __BINCVT_BUF,
+    __BIN_CVT_BYTE,
+    __BIN_CVT_SHORT,
+    __BIN_CVT_INT,
+    __BIN_CVT_LONG,
+    __BIN_CVT_FLOAT,
+    __BIN_CVT_DOUBLE,
+    __BIN_CVT_STRING_C,
+    __BIN_CVT_BOOL,
+    __BIN_CVT_MAP,
+    __BIN_CVT_ARRAY,
+    __BIN_CVT_BUF,
 
-    __BINCVT_EOF = 255
+    __BIN_CVT_EOF = 255
 };
 
 struct binary_map;
@@ -34,7 +34,7 @@ struct binary_array;
 
 struct binary_value
 {
-    __bincvt_typem type;
+    __bin_cvt_enum type;
     std::any __anyv;
 
     template <typename T> static binary_value make(const T &v)
@@ -42,27 +42,27 @@ struct binary_value
         using decay_t = std::decay_t<T>;
 
         if constexpr (std::is_same_v<byte, decay_t>)
-            return {__BINCVT_BYTE, std::any(v)};
+            return {__BIN_CVT_BYTE, std::any(v)};
         else if constexpr (std::is_same_v<short, decay_t>)
-            return {__BINCVT_SHORT, std::any(v)};
+            return {__BIN_CVT_SHORT, std::any(v)};
         else if constexpr (std::is_same_v<int, decay_t>)
-            return {__BINCVT_INT, std::any(v)};
+            return {__BIN_CVT_INT, std::any(v)};
         else if constexpr (std::is_same_v<long, decay_t>)
-            return {__BINCVT_LONG, std::any(v)};
+            return {__BIN_CVT_LONG, std::any(v)};
         else if constexpr (std::is_same_v<float, decay_t>)
-            return {__BINCVT_FLOAT, std::any(v)};
+            return {__BIN_CVT_FLOAT, std::any(v)};
         else if constexpr (std::is_same_v<double, decay_t>)
-            return {__BINCVT_DOUBLE, std::any(v)};
+            return {__BIN_CVT_DOUBLE, std::any(v)};
         else if constexpr (std::is_constructible_v<std::string, decay_t>)
-            return {__BINCVT_STRING_C, std::any(std::string(v))};
+            return {__BIN_CVT_STRING_C, std::any(std::string(v))};
         else if constexpr (std::is_same_v<bool, decay_t>)
-            return {__BINCVT_BOOL, std::any(v)};
+            return {__BIN_CVT_BOOL, std::any(v)};
         else if constexpr (std::is_same_v<binary_map, decay_t>)
-            return {__BINCVT_MAP, std::any(v)};
+            return {__BIN_CVT_MAP, std::any(v)};
         else if constexpr (std::is_same_v<binary_array, decay_t>)
-            return {__BINCVT_ARRAY, std::any(v)};
+            return {__BIN_CVT_ARRAY, std::any(v)};
         else if constexpr (std::is_same_v<byte_buf, decay_t>)
-            return {__BINCVT_BUF, std::any(v)};
+            return {__BIN_CVT_BUF, std::any(v)};
 
         prtlog_throw(FX_FATAL, "unsupported type.");
     }
@@ -71,57 +71,57 @@ struct binary_value
     {
         switch (type)
         {
-        case __BINCVT_BYTE:
+        case __BIN_CVT_BYTE:
             if constexpr (std::is_convertible_v<byte, T>)
                 return static_cast<T>(std::any_cast<byte>(__anyv));
             else
                 break;
-        case __BINCVT_SHORT:
+        case __BIN_CVT_SHORT:
             if constexpr (std::is_convertible_v<short, T>)
                 return static_cast<T>(std::any_cast<short>(__anyv));
             else
                 break;
-        case __BINCVT_INT:
+        case __BIN_CVT_INT:
             if constexpr (std::is_convertible_v<int, T>)
                 return static_cast<T>(std::any_cast<int>(__anyv));
             else
                 break;
-        case __BINCVT_LONG:
+        case __BIN_CVT_LONG:
             if constexpr (std::is_convertible_v<long, T>)
                 return static_cast<T>(std::any_cast<long>(__anyv));
             else
                 break;
-        case __BINCVT_FLOAT:
+        case __BIN_CVT_FLOAT:
             if constexpr (std::is_convertible_v<float, T>)
                 return static_cast<T>(std::any_cast<float>(__anyv));
             else
                 break;
-        case __BINCVT_DOUBLE:
+        case __BIN_CVT_DOUBLE:
             if constexpr (std::is_convertible_v<double, T>)
                 return static_cast<T>(std::any_cast<double>(__anyv));
             else
                 break;
-        case __BINCVT_STRING_C:
+        case __BIN_CVT_STRING_C:
             if constexpr (std::is_convertible_v<std::string, T>)
                 return std::any_cast<std::string>(__anyv);
             else
                 break;
-        case __BINCVT_BOOL:
+        case __BIN_CVT_BOOL:
             if constexpr (std::is_convertible_v<bool, T>)
                 return static_cast<T>(std::any_cast<bool>(__anyv));
             else
                 break;
-        case __BINCVT_MAP:
+        case __BIN_CVT_MAP:
             if constexpr (std::is_convertible_v<binary_map, T>)
                 return static_cast<T>(std::any_cast<binary_map>(__anyv));
             else
                 break;
-        case __BINCVT_ARRAY:
+        case __BIN_CVT_ARRAY:
             if constexpr (std::is_convertible_v<binary_array, T>)
                 return static_cast<T>(std::any_cast<binary_array>(__anyv));
             else
                 break;
-        case __BINCVT_BUF:
+        case __BIN_CVT_BUF:
             if constexpr (std::is_convertible_v<byte_buf, T>)
                 return static_cast<T>(std::any_cast<byte_buf>(__anyv));
             else

@@ -8,6 +8,40 @@
 namespace flux
 {
 
+hio_path::hio_path() = default;
+
+hio_path::hio_path(const std::string &name) : absolute(name), __npath(fs::path(name))
+{
+    __check();
+}
+
+void hio_path::__check()
+{
+    for (size_t pos = 0; (pos = absolute.find('\\', pos)) != std::string::npos;)
+        absolute.replace(pos, 1, "/");
+}
+
+std::string hio_path::file_name() const
+{
+    return __npath.filename().string();
+}
+
+std::string hio_path::file_format() const
+{
+    return __npath.extension().string();
+}
+
+hio_path hio_path::operator/(const std::string &name) const
+{
+    bool append = absolute[absolute.length() - 1] != '/';
+    return hio_path(append ? absolute + '/' + name : absolute + name);
+}
+
+std::string hio_path::operator-(const hio_path &path) const
+{
+    return fs::relative(__npath, path.__npath).generic_string();
+}
+
 hio_path hio_open(const std::string &name)
 {
     return hio_path(name);
