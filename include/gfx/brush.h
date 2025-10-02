@@ -2,11 +2,12 @@
 #include <cstring>
 #include <gfx/camera.h>
 #include <gfx/color.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 #include <gfx/cbuf.h>
 #include <core/math.h>
 #include <core/math.h>
 #include <stack>
+#include <functional>
 
 namespace flux::gfx
 {
@@ -29,8 +30,8 @@ struct graph_state
     graph_mode mode = FX_TEXTURED_QUAD;
     shared<texture> texture = nullptr;
     shared<shader_program> program = nullptr;
-    void (*callback_uniform)(shared<shader_program> program) = nullptr;
-    void (*callback_buffer_append)(unique<complex_buffer> buf) = nullptr;
+    std::function<void(shared<shader_program> program)> callback_uniform;
+    std::function<void(unique<complex_buffer> buf)> callback_buffer_append;
 };
 
 // pre-declare
@@ -94,4 +95,4 @@ struct brush
 
 unique<brush> make_brush(shared<complex_buffer> buf);
 
-} // namespace flux
+} // namespace flux::gfx

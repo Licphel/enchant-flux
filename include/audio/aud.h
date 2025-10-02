@@ -6,6 +6,14 @@
 namespace flux::aud
 {
 
+enum device_option
+{
+    FX_AUDIO_LISTENER,
+    FX_AUDIO_ROLLOFF,
+    FX_AUDIO_REFERENCE_DIST,
+    FX_AUDIO_MAX_DIST
+};
+
 struct track
 {
     /* unstable */ unsigned int __track_id;
@@ -47,9 +55,13 @@ struct clip
     void operate(clip_op param);
 };
 
-void make_device();
-void end_make_device();
+void tk_make_device();
+void tk_end_make_device();
 shared<track> load_track(const hio_path &path);
 shared<clip> make_clip(shared<track> track);
+
+void tk_set_device_option(device_option opt, double v);
+void tk_set_device_option(device_option opt, const vec2 &v);
+void tk_set_device_option(device_option opt, const vec3 &v);
 
 } // namespace flux

@@ -5,6 +5,11 @@
 namespace flux
 {
 
+uuid uuid_null()
+{
+    return uuid();
+}
+
 uuid uuid_generate()
 {
     uuid u;
@@ -21,6 +26,8 @@ uuid uuid_generate()
 
     for (int i = 8; i < 16; i++)
         u.bytes[i] = dis(gen);
+
+    u.__hash = std::hash<std::string_view>{}(std::string_view(reinterpret_cast<const char *>(u.bytes.data()), u.bytes.size()));
 
     return u;
 }

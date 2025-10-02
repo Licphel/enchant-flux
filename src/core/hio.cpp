@@ -118,7 +118,7 @@ static std::vector<byte> brotli_decompress(const std::vector<byte> &src)
     const byte *nxt_in = src.data();
     BrotliDecoderState *st = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
     if (!st)
-        prtlog_throw(FX_FATAL, "Brotli decoder create failed");
+        prtlog_throw(FX_FATAL, "brotli decoder create failed");
 
     for (;;)
     {
@@ -132,7 +132,7 @@ static std::vector<byte> brotli_decompress(const std::vector<byte> &src)
         if (rc == BROTLI_DECODER_RESULT_SUCCESS)
             break;
         if (rc == BROTLI_DECODER_RESULT_ERROR)
-            prtlog_throw(FX_FATAL, "Brotli decoder error");
+            prtlog_throw(FX_FATAL, "brotli decoder error");
     }
     BrotliDecoderDestroyInstance(st);
     return dst;

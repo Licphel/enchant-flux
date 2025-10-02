@@ -3,6 +3,7 @@
 #include <memory>
 #include <gl/glew.h>
 #include <core/log.h>
+#include <functional>
 
 namespace flux::gfx
 {
@@ -123,7 +124,7 @@ static int __build_shader_part(std::string source, GLenum type)
 }
 
 shared<shader_program> make_program(const std::string &vert, const std::string &frag,
-                                    void (*callback_setup)(shared<shader_program> program))
+                                    std::function<void(shared<shader_program> program)> callback_setup)
 {
     shared<shader_program> program = std::make_shared<shader_program>();
     int id = program->__program_id = glCreateProgram();
@@ -227,4 +228,4 @@ shared<shader_program> make_program(builtin_shader_type type)
     return nullptr;
 }
 
-} // namespace flux
+} // namespace flux::gfx

@@ -1,5 +1,5 @@
 #include <gfx/brush.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
 #include <memory>

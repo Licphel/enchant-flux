@@ -28,7 +28,12 @@ size_t byte_buf::size() const
 
 size_t byte_buf::capacity() const
 {
-    return __data.size();
+    return __data.capacity();
+}
+
+size_t byte_buf::free_bytes() const
+{
+    return __data.capacity() - __wpos;
 }
 
 size_t byte_buf::remaining() const
@@ -144,7 +149,17 @@ size_t byte_buf::write_pos() const
 
 std::vector<byte> byte_buf::to_vector() const
 {
-    return __data;
+    return std::vector<byte>(__data.begin(), __data.begin() + __wpos);
+}
+
+std::vector<byte> byte_buf::read_advance(int len)
+{
+    size_t readable = readable_bytes();
+    if (len > readable)
+        len = readable;
+    auto vec = std::vector<byte>(__data.begin() + __rpos, __data.begin() + __rpos + len);
+    __rpos += len;
+    return vec;
 }
 
 void byte_buf::rewind()

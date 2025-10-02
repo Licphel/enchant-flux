@@ -51,6 +51,7 @@ struct byte_buf
 
     size_t size() const;
     size_t capacity() const;
+    size_t free_bytes() const;
     size_t remaining() const;
     size_t readable_bytes() const;
     bool is_empty() const;
@@ -100,6 +101,7 @@ struct byte_buf
     size_t read_pos() const;
     size_t write_pos() const;
     std::vector<byte> to_vector() const;
+    std::vector<byte> read_advance(int len);
     void rewind();
     void compact();
 };

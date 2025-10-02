@@ -1,5 +1,5 @@
 #include <gfx/camera.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 
 namespace flux::gfx
 {

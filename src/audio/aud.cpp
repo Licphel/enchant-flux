@@ -1,7 +1,7 @@
 #include <audio/aud.h>
 #include <al/alc.h>
 #include <al/al.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 #include <vector>
 #include <core/log.h>
 #include <memory>
@@ -73,6 +73,9 @@ void clip::operate(clip_op param)
 ALCdevice *al_dev;
 ALCcontext *al_ctx;
 std::vector<shared<clip>> clip_r;
+double rolloff = 1.0;
+double max_dist = 1.0;
+double ref_dist = 1.0;
 
 void __process_tracks()
 {
@@ -87,7 +90,7 @@ void __process_tracks()
     }
 }
 
-void make_device()
+void tk_make_device()
 {
     // init openal
     al_dev = alcOpenDevice(nullptr);
@@ -100,8 +103,9 @@ void make_device()
     });
 }
 
-void end_make_device()
+void tk_end_make_device()
 {
+    alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
     // nothing
 }
 
@@ -210,11 +214,37 @@ shared<clip> make_clip(shared<track> track)
     unsigned int id;
     alGenSources(1, &id);
     alSourcei(id, AL_BUFFER, track->__track_id);
+    alSourcef(id, AL_ROLLOFF_FACTOR, rolloff);
+    alSourcef(id, AL_REFERENCE_DISTANCE, ref_dist);
+    alSourcef(id, AL_MAX_DISTANCE, max_dist);
+
     auto ptr = std::make_shared<clip>();
     ptr->relying_track = track;
     ptr->__clip_id = id;
     clip_r.push_back(ptr);
     return ptr;
+}
+
+void tk_set_device_option(device_option opt, double v)
+{
+    if (opt == FX_AUDIO_ROLLOFF)
+        rolloff = v;
+    else if (opt == FX_AUDIO_REFERENCE_DIST)
+        ref_dist = v;
+    else if (opt == FX_AUDIO_MAX_DIST)
+        max_dist = v;
+}
+
+void tk_set_device_option(device_option opt, const vec2 &v)
+{
+    if (opt == FX_AUDIO_LISTENER)
+        alListener3f(AL_POSITION, v.x, v.y, 0);
+}
+
+void tk_set_device_option(device_option opt, const vec3 &v)
+{
+    if (opt == FX_AUDIO_LISTENER)
+        alListener3f(AL_POSITION, v.x, v.y, v.z);
 }
 
 } // namespace flux::aud

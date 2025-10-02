@@ -4,6 +4,7 @@
 #include <gfx/color.h>
 #include <core/math.h>
 #include <core/math.h>
+#include <functional>
 
 namespace flux::gfx
 {
@@ -45,7 +46,7 @@ struct shader_uniform
 struct shader_program
 {
     /* unstable */ unsigned int __program_id = 0;
-    void (*callback_setup)(shared<shader_program> program) = nullptr;
+    std::function<void (shared<shader_program> program)> callback_setup;
     /* unstable */ bool __has_setup = false;
     std::vector<shader_uniform> cached_uniforms;
 
@@ -63,7 +64,7 @@ enum builtin_shader_type
 };
 
 shared<shader_program> make_program(const std::string &vert, const std::string &frag,
-                                    void (*callback_setup)(shared<shader_program> program));
+                                    std::function<void (shared<shader_program> program)> callback_setup);
 shared<shader_program> make_program(builtin_shader_type type);
 
 } // namespace flux

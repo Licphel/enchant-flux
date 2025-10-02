@@ -1,6 +1,6 @@
 #include <gfx/brush.h>
 #include <gfx/image.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 #include <core/log.h>
 #include <audio/aud.h>
 #include <gfx/atlas.h>
@@ -12,10 +12,17 @@
 #include <core/load.h>
 #include <core/rand.h>
 #include <core/uuid.h>
+#include <net/packet.h>
+#include <net/socket.h>
 
 using namespace flux;
 using namespace flux::gfx;
+using namespace flux::net;
+using namespace flux::aud;
 
+#define NET_TEST
+
+#ifndef NET_TEST
 shared<texture> tex, tex1;
 shared<mesh> msh;
 shared<font> fnt;
@@ -92,3 +99,36 @@ int main()
     tk_lifecycle(0, 20, false);
     return 0;
 }
+#else
+socket sockc;
+socket socks;
+int i;
+
+int main()
+{
+    register_packet<packet_2s_heartbeat>();
+    register_packet<packet_dummy>();
+
+    socks.start(8080);
+    sockc.connect(connection_type::lan_server, "127.0.0.1", 8080);
+    tk_hook_event_tick([](double) {
+        sockc.send_to_server(make_packet<packet_dummy>("From Remote " + std::to_string(i++)));
+        socks.send_to_remotes(make_packet<packet_dummy>("From Server " + std::to_string(i++)));
+        sockc.tick();
+        socks.tick();
+    });
+
+    tk_make_handle();
+    tk_title("Enchant Flux");
+    tk_size(vec2(800, 450));
+    tk_end_make_handle();
+    tk_lifecycle(60, 20, false);
+
+    tk_make_device();
+    tk_set_device_option(FX_AUDIO_ROLLOFF, 2.0);
+    tk_set_device_option(FX_AUDIO_REFERENCE_DIST, 8.0);
+    tk_set_device_option(FX_AUDIO_MAX_DIST, 42.0);
+    tk_set_device_option(FX_AUDIO_LISTENER, vec3(0, 0, 0));
+    tk_end_make_device();
+}
+#endif

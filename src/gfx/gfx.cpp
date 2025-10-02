@@ -2,7 +2,7 @@
 #include <chrono>
 #include <gfx/brush.h>
 #include <gfx/image.h>
-#include <gfx/toolkit.h>
+#include <gfx/gfx.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
 #include <glfw/glfw3.h>
@@ -271,6 +271,7 @@ void tk_lifecycle(int fps, int tps, bool vsync)
                     e(lf_delta);
                 __cur_in_tick = false;
                 lf_ticks++;
+                t_secs += lf_delta;
                 tick_frm++;
                 logic_debt -= DT_LOGIC_NS;
             }
@@ -401,4 +402,4 @@ std::string tk_consume_chars()
     return cpy;
 }
 
-} // namespace flux
+} // namespace flux::gfx

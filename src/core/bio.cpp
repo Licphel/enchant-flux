@@ -45,6 +45,8 @@ void __write_primitive(byte_buf &buf, const binary_value &v)
     case __BINCVT_BUF:
         buf.write_byte_buf(v.cast<byte_buf>());
         break;
+    default:
+        break;
     }
 }
 

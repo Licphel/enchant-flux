@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.lua": "lua",
+        "*.qk": "labyrinth",
         "iomanip": "cpp",
         "xiosbase": "cpp",
         "atomic": "cpp",
@@ -121,6 +122,7 @@
         "netfwd": "cpp",
         "socket": "cpp",
         "timer": "cpp",
-        "*.inc": "c"
+        "*.inc": "c",
+        "*.def": "cpp"
     }
 }
