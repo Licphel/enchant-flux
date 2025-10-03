@@ -1,11 +1,11 @@
 #pragma once
 #include <memory>
 
-#define FLUX_VERSION "v1.2.2"
+#define FLUX_VERSION "v1.2.3"
 
-// I prefer the y-axis to point upwards, but modern graphics APIs usually have
-// the y-axis pointing downwards. You can undefine this to make the y-axis point upwards.
-// However, it is not guaranteed that all parts of the engine will respect this setting.
+// I prefer the y-axis to point upwards, but modern graphics apis usually have
+// the y-axis pointing downwards. you can undefine this to make the y-axis point upwards.
+// however, it is not guaranteed that all parts of the engine will respect this setting.
 #define FX_Y_IS_DOWN
 
 namespace flux

@@ -20,6 +20,7 @@ void complex_buffer::end_quad()
     }
 
     unsigned int k = vertex_count - 4;
+    // we don't use #idx to cut down 5 another cap checks.
     index_buf.push_back(0 + k);
     index_buf.push_back(1 + k);
     index_buf.push_back(3 + k);

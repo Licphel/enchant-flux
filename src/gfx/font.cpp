@@ -1,7 +1,8 @@
 #include <gfx/font.h>
 #include <gfx/atlas.h>
 #include <core/log.h>
-#include <cuchar>
+#include <locale>
+#include <codecvt>
 #include <string>
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
@@ -84,48 +85,11 @@ glyph font::make_glyph(u32_char ch)
     return g;
 }
 
-static std::u32string to_u32(std::string_view u8)
-{
-    std::u32string out;
-    out.reserve(u8.size());
-    auto it = u8.begin(), last = u8.end();
-
-    auto need = [&](std::ptrdiff_t n) -> bool { return std::distance(it, last) >= n; };
-
-    while (it != last)
-    {
-        unsigned char c = *it++;
-        u32_char cp;
-        if (c < 0x80)
-            cp = c;
-        else if ((c & 0xE0) == 0xC0)
-        {
-            if (!need(1))
-                return {};
-            cp = (c & 0x1F) << 6 | (*it++ & 0x3F);
-        }
-        else if ((c & 0xF0) == 0xE0)
-        {
-            if (!need(2))
-                return {};
-            cp = (c & 0x0F) << 12 | (*it++ & 0x3F) << 6 | (*it++ & 0x3F);
-        }
-        else if ((c & 0xF8) == 0xF0)
-        {
-            if (!need(3))
-                return {};
-            cp = (c & 0x07) << 18 | (*it++ & 0x3F) << 12 | (*it++ & 0x3F) << 6 | (*it++ & 0x3F);
-        }
-        else
-            return {};
-        out.push_back(cp);
-    }
-    return out;
-}
+static std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> __u32cvt;
 
 quad font::make_vtx(brush *brush, const std::string &u8_str, double x, double y, double scale, double max_w)
 {
-    const std::u32string str = to_u32(u8_str);
+    std::u32string str = __u32cvt.from_bytes(u8_str.data(), u8_str.data() + u8_str.size());
 
     if (str.length() == 0 || str.length() > INT16_MAX)
         return {};
@@ -139,7 +103,7 @@ quad font::make_vtx(brush *brush, const std::string &u8_str, double x, double y,
     double dy = y;
     bool endln = false;
 
-    for (int i = 0; i < str.length(); i++)
+    for (int i = 0; i < (int)str.length(); i++)
     {
         u32_char ch = str[i];
 
@@ -176,14 +140,14 @@ quad font::make_vtx(brush *brush, const std::string &u8_str, double x, double y,
             brush->draw_texture(g.texpart, {dx + g.offset.x, dy + g.offset.y, g.size.x, g.size.y});
         dx += g.advance;
 
-        if (i == str.length() - 1 || (get_glyph(str[i + 1]) * scale).advance + dx - x >= max_w)
+        if (i == (int)str.length() - 1 || (get_glyph(str[i + 1]) * scale).advance + dx - x >= max_w)
             lw += g.size.x - g.advance;
     }
 
 #ifdef FX_Y_IS_DOWN
-    return {x, y, w, h + lh};
+    return quad::corner(x, y, std::max(lw, w), h + lh - scale);
 #else
-    return {x, dy, w, h + lh};
+    return quad::corner(x, dy, std::max(lw, w), h + lh - scale);
 #endif
 }
 

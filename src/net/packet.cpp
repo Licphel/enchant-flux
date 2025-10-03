@@ -50,25 +50,25 @@ shared<packet> packet::unpack(byte_buf &buffer, int len)
 
 void packet::send_to_server()
 {
-    get_gsocket()->send_to_server(shared_from_this());
+    get_gsocket_remote()->send_to_server(shared_from_this());
 }
 
 void packet::send_to_remote(const uuid &rid)
 {
-    get_gsocket()->send_to_remote(rid, shared_from_this());
+    get_gsocket_server()->send_to_remote(rid, shared_from_this());
 }
 
 void packet::send_to_remotes(const std::vector<uuid> &rids)
 {
     auto ptr = shared_from_this();
-    auto skt = get_gsocket();
+    auto skt = get_gsocket_server();
     for (auto &r : rids)
         skt->send_to_remote(r, ptr);
 }
 
 void packet::send_to_remotes()
 {
-    get_gsocket()->send_to_remotes(shared_from_this());
+    get_gsocket_server()->send_to_remotes(shared_from_this());
 }
 
 static int __pid_counter_v;

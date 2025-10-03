@@ -25,7 +25,8 @@ struct glyph
     double advance;
     vec2 offset;
 
-    glyph operator*(double scl)
+    // scale the glyph.
+    inline glyph operator*(double scl)
     {
         return {
             texpart,
@@ -58,6 +59,8 @@ struct font
     }
 
     glyph make_glyph(u32_char ch);
+    // draw the string in the font, return the bounding box.
+    // and if brush is nullptr, it won't draw anything, just calculating the bounding box.
     quad make_vtx(brush *brush, const std::string &str, double x, double y, double scale = 1, double max_w = INT_MAX);
 };
 

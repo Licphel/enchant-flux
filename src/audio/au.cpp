@@ -96,7 +96,7 @@ void tk_make_device()
     al_dev = alcOpenDevice(nullptr);
     al_ctx = alcCreateContext(al_dev, nullptr);
     alcMakeContextCurrent(al_ctx);
-    tk_hook_event_tick([](double) { __process_tracks(); });
+    tk_hook_event_tick([]() { __process_tracks(); });
     tk_hook_event_dispose([]() {
         alcDestroyContext(al_ctx);
         alcCloseDevice(al_dev);
@@ -247,4 +247,4 @@ void tk_set_device_option(device_option opt, const vec3 &v)
         alListener3f(AL_POSITION, v.x, v.y, v.z);
 }
 
-} // namespace flux::aud
+} // namespace flux::au

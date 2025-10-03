@@ -52,6 +52,8 @@ struct clip
     void set(clip_op param, double v);
     void set(clip_op param, const vec2 &v);
     void set(clip_op param, const vec3 &v);
+    // play, loop, pause or stop the clip.
+    // note: once the clip is stopped, it cannot be played again. 
     void operate(clip_op param);
 };
 
@@ -60,6 +62,7 @@ void tk_end_make_device();
 shared<track> load_track(const hio_path &path);
 shared<clip> make_clip(shared<track> track);
 
+// these options should be set between #tk_make_device and #tk_end_make_device.
 void tk_set_device_option(device_option opt, double v);
 void tk_set_device_option(device_option opt, const vec2 &v);
 void tk_set_device_option(device_option opt, const vec3 &v);

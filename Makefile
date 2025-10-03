@@ -1,6 +1,5 @@
 CXX := ccache g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -g -fdiagnostics-color=always
-CXXFLAGS += -Wno-sign-compare -Wno-narrowing -Wno-conditional-uninitialized
+CXXFLAGS := -std=c++20 -Wall -Wextra -g -fdiagnostics-color=always
 MAKEFLAGS += -j$(shell nproc)
 SRC	:= src
 INCLUDE	:= include

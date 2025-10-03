@@ -23,7 +23,6 @@ template <typename T> struct ref
 
 template <typename T> struct registry
 {
-    bool __index_only = false;
     std::map<res_id, T> map;
     std::stack<std::function<void()>> __delayed;
     int __idx_next = 0;
@@ -32,10 +31,10 @@ template <typename T> struct registry
     {
         map[id] = obj;
         int idx = __idx_next++;
+        // here, the template value should have members reg_index & reg_id.
         __delayed.push([this, idx, id]() {
             map[id].reg_index = idx;
-            if(!__index_only)
-                map[id].reg_id = id;
+            map[id].reg_id = id;
         });
          return {this, idx};
     }
@@ -47,12 +46,6 @@ template <typename T> struct registry
             __delayed.top()();
             __delayed.pop();
         }
-    }
-
-    registry<T>& index_only()
-    {
-        __index_only = true;
-        return *this;
     }
 
     T operator[](int idx)

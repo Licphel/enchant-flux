@@ -12,6 +12,7 @@
 namespace flux
 {
 
+// internal usage
 enum __bin_cvt_enum
 {
     __BIN_CVT_BYTE,
@@ -53,6 +54,8 @@ struct binary_value
             return {__BIN_CVT_FLOAT, std::any(v)};
         else if constexpr (std::is_same_v<double, decay_t>)
             return {__BIN_CVT_DOUBLE, std::any(v)};
+        // it's tricky to check string types, so we just check if it's constructible.
+        // I've tried const char* & char[], but they don't cover all cases.
         else if constexpr (std::is_constructible_v<std::string, decay_t>)
             return {__BIN_CVT_STRING_C, std::any(std::string(v))};
         else if constexpr (std::is_same_v<bool, decay_t>)

@@ -14,6 +14,7 @@
 #include <core/uuid.h>
 #include <net/packet.h>
 #include <net/socket.h>
+#include <gfx/gui.h>
 
 using namespace flux;
 using namespace flux::gfx;
@@ -63,24 +64,26 @@ int main()
     msh = make_mesh();
     fnt = load_font(hio_open_local("gfx/font/fusion_pixel.ttf"), 12, 12);
 
-    tk_hook_event_tick([](double) {
+    tk_hook_event_tick([]() {
         while (loader->progress < 1)
         {
             loader->next();
             prtlog(FX_INFO, "load: " + std::to_string(loader->progress));
         }
         tk_title(fmt::format("Enchant Flux | tps :{} fps :{}", tk_real_tps(), tk_real_fps()));
-        if (tk_key_press(KEY_G))
+        if (tk_key_press(FX_KEY_G))
             prtlog(FX_INFO, "HI!");
     });
-    tk_hook_event_render([](brush *brush, double) {
+    tk_hook_event_render([](brush *brush) {
         brush->clear({0, 0, 0, 1});
         brush->use(FX_NORMAL_BLEND);
         brush->use(get_world_camera({0, 0}, 250 + tk_ticks()));
 
         brush->draw_rect_outline({-10, -10, 5, 5});
 
-        auto q = fnt->make_vtx(brush, "Font test", 0, 0, 1, 120);
+        auto q =
+            fnt->make_vtx(brush, "Font test", 0, 0, 1, 120);
+        brush->cl_norm();
         brush->draw_rect_outline(q);
         brush->cl_set(color(0, 1, 1, 1));
         brush->draw_line(vec2(-1000, 0), vec2(1000, 0));
@@ -92,7 +95,7 @@ int main()
             brush->draw_texture(tex1, quad(i * 40, i * 40, 50, 50));
         brush->cl_norm();
 
-        if (tk_key_press(KEY_F))
+        if (tk_key_press(FX_KEY_F))
             prtlog(FX_INFO, "HI!");
     });
 
@@ -100,22 +103,43 @@ int main()
     return 0;
 }
 #else
-socket sockc;
-socket socks;
+
 int i;
+socket *sockc = get_gsocket_remote();
+socket *socks = get_gsocket_server();
+shared<gui> g;
+shared<gui_button> b;
 
 int main()
 {
     register_packet<packet_2s_heartbeat>();
     register_packet<packet_dummy>();
 
-    socks.start(8080);
-    sockc.connect(connection_type::lan_server, "127.0.0.1", 8080);
-    tk_hook_event_tick([](double) {
-        sockc.send_to_server(make_packet<packet_dummy>("From Remote " + std::to_string(i++)));
-        socks.send_to_remotes(make_packet<packet_dummy>("From Server " + std::to_string(i++)));
-        sockc.tick();
-        socks.tick();
+    g = make_gui<gui>();
+    b = make_gui_component<gui_button>();
+    b->region = quad::corner(100, 100, 200, 50);
+    b->on_render = [](brush *brush, gui_button::button_state state) {
+        if (state == gui_button::IDLE)
+            brush->cl_set(color(1, 1, 1, 1));
+        else if (state == gui_button::HOVERING)
+            brush->cl_set(color(0.8, 0.8, 1, 1));
+        else if (state == gui_button::PRESSED)
+            brush->cl_set(color(0.6, 0.6, 1, 1));
+        brush->draw_rect(b->region);
+        brush->cl_norm();
+    };
+    b->on_click = []() { prtlog(FX_INFO, "clicked!"); };
+    g->join(b);
+    g->display();
+    socks->start(8080);
+    sockc->connect(connection_type::lan_server, "127.0.0.1", 8080);
+
+    tk_hook_event_tick([]() { gui::tick_currents(); });
+
+    tk_hook_event_render([](brush *brush) {
+        brush->clear({0, 0, 0, 1});
+        brush->use(FX_NORMAL_BLEND);
+        gui::render_currents(brush);
     });
 
     tk_make_handle();

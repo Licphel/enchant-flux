@@ -18,8 +18,8 @@ namespace flux::gfx
 
 GLFWwindow *window;
 
-std::vector<std::function<void(double delta)>> event_tick;
-std::vector<std::function<void(brush *brush, double partial)>> event_render;
+std::vector<std::function<void()>> event_tick;
+std::vector<std::function<void(brush *brush)>> event_render;
 std::vector<std::function<void()>> event_dispose;
 std::vector<std::function<void(int w, int h)>> event_resize;
 std::vector<std::function<void(int button, int action, int mods)>> event_mouse_state;
@@ -207,6 +207,16 @@ void tk_icon(shared<image> img)
     glfwSetWindowIcon(window, 1, &img_glfw);
 }
 
+void tk_cursor(shared<image> img, vec2 hotspot)
+{
+    GLFWimage img_glfw;
+    img_glfw.pixels = img->pixels;
+    img_glfw.width = img->width;
+    img_glfw.height = img->height;
+    GLFWcursor *cursor = glfwCreateCursor(&img_glfw, hotspot.x, hotspot.y);
+    glfwSetCursor(window, cursor);
+}
+
 void tk_end_make_handle()
 {
     glfwShowWindow(window);
@@ -268,7 +278,7 @@ void tk_lifecycle(int fps, int tps, bool vsync)
             {
                 __cur_in_tick = true;
                 for (auto e : event_tick)
-                    e(lf_delta);
+                    e();
                 __cur_in_tick = false;
                 lf_ticks++;
                 t_secs += lf_delta;
@@ -283,7 +293,7 @@ void tk_lifecycle(int fps, int tps, bool vsync)
 
                 auto brush = direct_mesh->brush_binded.get();
                 for (auto e : event_render)
-                    e(brush, lf_partial);
+                    e(brush);
                 lf_render_ticks++;
                 brush->flush();
                 tk_swap_buffers();
@@ -329,12 +339,12 @@ bool tk_poll_events()
     return v;
 }
 
-void tk_hook_event_tick(std::function<void(double delta)> callback)
+void tk_hook_event_tick(std::function<void()> callback)
 {
     event_tick.push_back(callback);
 }
 
-void tk_hook_event_render(std::function<void(brush *brush, double partial)> callback)
+void tk_hook_event_render(std::function<void(brush *brush)> callback)
 {
     event_render.push_back(callback);
 }
@@ -366,14 +376,14 @@ void tk_hook_key_state(std::function<void(int button, int scancode, int action, 
 
 bool tk_key_held(int key, int mod)
 {
-    return keyact[key] != GLFW_RELEASE && (mod == MOD_ANY || keymod[key] & mod);
+    return keyact[key] != GLFW_RELEASE && (mod == FX_MOD_ANY || keymod[key] & mod);
 }
 
 bool tk_key_press(int key, int mod)
 {
     bool pressc =
         (__cur_in_tick && keydown[key] == lf_ticks) || (!__cur_in_tick && keydown_render[key] == lf_render_ticks);
-    return keyact[key] == GLFW_PRESS && pressc && (mod == MOD_ANY || keymod[key] & mod);
+    return keyact[key] == GLFW_PRESS && pressc && (mod == FX_MOD_ANY || keymod[key] & mod);
 }
 
 vec2 tk_get_cursor()
@@ -381,18 +391,20 @@ vec2 tk_get_cursor()
     return vec2(mcx, mcy);
 }
 
-double tk_get_scroll()
+double tk_consume_scroll()
 {
-    return std::abs(mscy);
+    double d = std::abs(mscy);
+    mscy = 0;
+    return d;
 }
 
 int tk_get_scroll_towards()
 {
     if (mscy > 10E-4)
-        return SCROLL_UP;
+        return FX_SCROLL_UP;
     if (mscy < -10E-4)
-        return SCROLL_DOWN;
-    return SCROLL_NO;
+        return FX_SCROLL_DOWN;
+    return FX_SCROLL_NO;
 }
 
 std::string tk_consume_chars()

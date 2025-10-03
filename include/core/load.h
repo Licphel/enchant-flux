@@ -11,6 +11,8 @@ namespace flux
 
 std::unordered_map<res_id, std::any> *__get_resource_map();
 
+// get a loaded resource by its id.
+// if you are unsure if the resource is loaded, use #make_res_ref instead.
 template <typename T> T make_res(const res_id &id)
 {
     const auto m = __get_resource_map();
@@ -54,9 +56,12 @@ struct asset_loader
 
     void scan(const hio_path &path_root);
     void add_sub(shared<asset_loader> subloader);
+    // run a task in the queue.
+    // you may need to check the #progress to see if all tasks are done.
     void next();
 };
 
+// when you are unsure if the resource is loaded, use this to get a reference to it.
 template <typename T> aref<T> make_res_ref(const res_id &id)
 {
     return {id};
@@ -75,6 +80,7 @@ enum asset_loader_equip
     FX_LOAD_SCRIPT
 };
 
+// add a built-in loader behavior to the loader.
 void make_loader_equipment(shared<asset_loader> loader, asset_loader_equip equipment);
 
 } // namespace flux

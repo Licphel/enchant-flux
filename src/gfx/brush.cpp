@@ -151,7 +151,7 @@ void brush::use(const graph_state &sts)
 
 transform brush::get_combined_transform()
 {
-    transform cpy = camera_binded.combined_t;
+    transform cpy = camera_binded.combined_out_t;
     return cpy.multiply(transform_stack.top());
 }
 

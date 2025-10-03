@@ -31,7 +31,8 @@ struct complex_buffer
     bool __icap_changed;
     bool __vcap_changed;
 
-    template <typename T> complex_buffer & vtx(const T &t)
+    // write a vertex, generally, T is float.
+    template <typename T> complex_buffer & vtx(T t)
     {
         size_t s = sizeof(t);
         size_t old = vertex_buf.size();
@@ -48,7 +49,8 @@ struct complex_buffer
         return *this;
     }
 
-    complex_buffer & idx(unsigned int t)
+    // write an index.
+    inline complex_buffer & idx(unsigned int t)
     {
         size_t s = sizeof(t);
         size_t old = index_buf.size();

@@ -12,6 +12,9 @@
 namespace flux::net
 {
 
+static size_t NET_BUF_SIZE = 1024 * 1024;
+static double NET_TIME_OUT = 5.0;
+
 namespace asio = boost::asio;
 using tcp = asio::ip::tcp;
 using udp = asio::ip::udp;
@@ -55,9 +58,6 @@ template <typename T> class __blocking_queue
         return que.size();
     }
 };
-
-const size_t NET_BUF_SIZE = 1024 * 1024;
-const double NET_TIME_OUT = 5.0;
 
 struct socket::_impl
 {
@@ -106,6 +106,7 @@ struct socket::_impl
 
     std::unordered_map<uuid, shared<channel>> channels;
     bool is_server = false;
+    bool is_remote = false;
     std::atomic_bool is_term = false;
     std::vector<shared<packet>> rcv_packets;
     __blocking_queue<shared<packet>> snd_packets;
@@ -117,6 +118,7 @@ struct socket::_impl
 
     void remote_connect(const std::string &host, uint16_t port)
     {
+        is_remote = true;
         tcp::resolver resolver(ioc);
         auto endpoints = resolver.resolve(host, std::to_string(port));
 
@@ -151,6 +153,7 @@ struct socket::_impl
             ioc_worker.join();
 
         client_sock.close();
+        is_remote = false;
         is_term = true;
 
         prtlog(FX_INFO, "[remote] remote disconnected.");
@@ -160,10 +163,10 @@ struct socket::_impl
     {
         if (byte_read == 0)
         {
+            if (is_remote)
+                remote_disconnect();
             if (is_server)
                 server_stop();
-            else
-                remote_disconnect();
             return;
         }
 
@@ -174,11 +177,11 @@ struct socket::_impl
             int rp = buf.read_pos();
             int len = buf.read<int>();
 
-            if (buf.readable_bytes() < len)
+            if (buf.readable_bytes() < (size_t)len)
             {
                 buf.set_read_pos(rp);
 
-                if (buf.capacity() - buf.size() <= len + 4)
+                if (buf.capacity() - buf.size() <= (size_t)len + 4)
                     buf.compact();
                 break;
             }
@@ -351,13 +354,13 @@ struct socket::_impl
                         ++it;
                 }
             }
-            else
+            if (is_remote)
                 remote_send(make_packet<packet_2s_heartbeat>());
         }
 
         // lock is necessary.
         std::vector<shared<packet>> tmp;
-        
+
         std::lock_guard<std::mutex> lk(mtx);
         tmp.swap(rcv_packets);
 
@@ -474,11 +477,17 @@ void socket::hold_alive(const uuid &id)
     __p->hold_alive(id);
 }
 
-static socket __gsocket;
+static socket __gsocket_s;
+static socket __gsocket_c;
 
-socket *get_gsocket()
+socket *get_gsocket_server()
 {
-    return &__gsocket;
+    return &__gsocket_s;
+}
+
+socket *get_gsocket_remote()
+{
+    return &__gsocket_c;
 }
 
 } // namespace flux::net

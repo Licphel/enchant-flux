@@ -11,8 +11,11 @@
 namespace flux
 {
 
+// check if the system is little-endian.
 bool __check_is_sysle();
 
+// general byte buffer used in serialization, networking, etc.
+// endian-aware.
 struct byte_buf
 {
     std::vector<byte> __data;
@@ -103,7 +106,9 @@ struct byte_buf
     std::vector<byte> to_vector() const;
     // read from current read position and advance it by len.
     std::vector<byte> read_advance(int len);
+    // rewind so that we can read the data from the very beginning.
     void rewind();
+    // remove the read data and move the unread data to the front.
     void compact();
 };
 

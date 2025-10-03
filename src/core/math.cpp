@@ -1,4 +1,5 @@
 #include <core/math.h>
+#include "math.h"
 
 namespace flux
 {
@@ -286,6 +287,11 @@ quad quad::intersection_of(const quad &q1, const quad &q2)
 bool quad::intersect(const quad &q1, const quad &q2)
 {
     return intersection_of(q1, q2).area() > 0.0;
+}
+
+bool quad::contain(const quad &q, const vec2 &v)
+{
+    return v.x >= q.corner_x() && v.x <= q.prom_x() && v.y >= q.corner_y() && v.y <= q.prom_y();
 }
 
 quad &quad::translate(double nx, double ny)

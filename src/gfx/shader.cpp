@@ -164,11 +164,7 @@ static const std::string __dvert_textured = "#version 330 core\n"
                                             "void main() {\n"
                                             "    o_color = i_color;\n"
                                             "    o_texCoord = i_texCoord;\n"
-#ifdef FX_Y_IS_DOWN
-                                            "    gl_Position = u_proj * vec4(i_position.x, -i_position.y, 0.0, 1.0);\n"
-#else
                                             "    gl_Position = u_proj * vec4(i_position.x, i_position.y, 0.0, 1.0);\n"
-#endif
                                             "}";
 
 static const std::string __dfrag_textured = "#version 330 core\n"
@@ -187,11 +183,7 @@ static const std::string __dvert_colored = "#version 330 core\n"
                                            "uniform mat4 u_proj;\n"
                                            "void main() {\n"
                                            "    o_color = i_color;\n"
-#ifdef FX_Y_IS_DOWN
-                                           "    gl_Position = u_proj * vec4(i_position.x, -i_position.y, 0.0, 1.0);\n"
-#else
                                            "    gl_Position = u_proj * vec4(i_position.x, i_position.y, 0.0, 1.0);\n"
-#endif
                                            "}";
 
 static const std::string __dfrag_colored = "#version 330 core\n"

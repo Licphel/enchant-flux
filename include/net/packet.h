@@ -13,6 +13,8 @@ namespace flux::net
 
 struct packet_context
 {
+    // signals the remote is still alive.
+    // needed to be done every #NET_TIMEOUT seconds.
     virtual void hold_alive(const uuid &id) = 0;
 };
 

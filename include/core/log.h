@@ -17,17 +17,17 @@ enum log_type
 
 std::string __get_header(log_type type);
 
-template <typename... T> void prtlog(log_type type, const std::string &text, T &&...args)
+template <typename... Args> void prtlog(log_type type, const std::string &fmt, Args &&...args)
 {
-    std::string formatted = fmt::format(text, std::forward<T>(args)...);
-    std::cout << __get_header(type) << formatted << std::endl;
+    std::string formatted = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    std::cout << __get_header(type) << formatted << '\n';
 }
 
-template <typename... T> [[noreturn]] void prtlog_throw(log_type type, const std::string &text, T &&...args)
+template <typename... Args> [[noreturn]] void prtlog_throw(log_type type, const std::string &fmt, Args &&...args)
 {
-    std::string formatted = fmt::format(text, std::forward<T>(args)...);
-    std::cout << __get_header(type) << formatted << std::endl;
-    throw std::runtime_error(formatted); // here throws the exception, when a fatal error occurs.
+    std::string formatted = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+    std::cout << __get_header(type) << formatted << '\n';
+    throw std::runtime_error(formatted);
 }
 
 } // namespace flux

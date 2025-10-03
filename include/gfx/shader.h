@@ -32,6 +32,7 @@ struct shader_uniform
     
     shader_uniform(unsigned int id);
 
+    // bind the uniform to a texture unit, and use #bind_texture to actually bind it.
     void set_texture_unit(int unit);
     void seti(int v);
     void set(double v);

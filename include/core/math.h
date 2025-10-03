@@ -91,6 +91,7 @@ struct quad
     static quad intersection_of(const quad &q1, const quad &q2);
     // check if two quads intersect
     static bool intersect(const quad &q1, const quad &q2);
+    static bool contain(const quad &q, const vec2 &v);
 
     quad &translate(double nx, double ny);
     quad &locate_center(double nx, double ny);

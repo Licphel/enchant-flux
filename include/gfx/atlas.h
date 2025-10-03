@@ -21,7 +21,9 @@ struct atlas
 
     void begin();
     void end();
+    // add an image to the atlas, and get its texture.
     shared<texture> accept(shared<image> image);
+    // write an image to the atlas.
     void imgcpy(shared<image> image, int dest_x, int dest_y);
 };
 

@@ -48,11 +48,12 @@ struct brush
     weak<complex_buffer> buffer;
     mesh *__mesh_root;
     bool __is_in_mesh = false;
+    // when true, the brush will clear the buffer when flushed.
     bool __clear_when_flush = true;
-    bool __program_changed = true;
-
+    
     brush();
 
+    // since brush just holds a weak reference to the buffer, this method gets it and check the validity.
     shared<complex_buffer> lock_buffer();
     graph_state &current_state();
     void cl_norm();

@@ -162,7 +162,7 @@ size_t byte_buf::write_pos() const
 
 std::vector<byte> byte_buf::to_vector() const
 {
-    if(__wpos < 0 || __wpos > __data.size())
+    if(__wpos > __data.size())
         prtlog_throw(FX_FATAL, "byte buf write pos out of range!");
     return std::vector<byte>(__data.begin(), __data.begin() + __wpos);
 }

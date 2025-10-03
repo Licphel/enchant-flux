@@ -20,8 +20,11 @@ struct mesh
 
     mesh();
     ~mesh();
+    // clear the mesh and attempt to redraw it.
     brush *retry();
+    // record the mesh state and buffer content, and end the drawing.
     void record();
+    // draw the mesh with the brush. the brush should be direct-to-screen.
     void draw(brush *gbrush);
 };
 

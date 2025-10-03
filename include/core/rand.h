@@ -13,11 +13,15 @@ struct random
     random();
     ~random();
 
+    // here, the implementation may be complicated.
+    // but this single seed provides randomness.
     void set_seed(long seed);
 
+    // equivalent to next() < 0.5.
     bool next_bool();
     double next();
     double next(double min, double max);
+    // generates a guassian-distributed double in [min, max].
     double next_guassian(double min, double max);
     int next_int(int bound);
     int next_int(int min, int max);
@@ -29,7 +33,9 @@ struct random
     shared<random> copy(int seed_addon);
 };
 
+// get a global random generator, when we don't care the seed.
 shared<random> get_grand();
+// make a new random generator, with a random seed or a specific seed.
 shared<random> make_random();
 shared<random> make_random(long seed);
 

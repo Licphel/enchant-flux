@@ -18,7 +18,10 @@ struct uuid
     operator std::string() const;
 };
 
+// returns a null uuid, all bytes are 0.
 uuid uuid_null();
+// generate a random uuid with current time and a random number from #get_grand.
+// hopefully they won't collide.
 uuid uuid_generate();
 
 } // namespace flux
